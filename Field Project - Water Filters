@@ -1,0 +1,188 @@
+
+# load libraries for ordination and clustering
+library("cluster")
+library("phyloseq")
+packageDescription("phyloseq")$Version
+library("ggplot2")
+library("plyr")
+library("grid")
+library("ape")
+library("phangorn")
+library("phytools")
+library("vegan")
+library("tidyr")
+library("dplyr")
+library("data.table")
+library("microbiome")
+library("ggpubr")
+library("speedyseq")
+library("stringr")
+#library("cowplot")
+theme_set(theme_bw()) ## Default is gray, In case you want the white
+
+
+#Import files to make the phyloseq object 
+
+##OTU file
+otufile = "seqtab_nochim_transposed_VRwater_v34.csv" 
+otu_df = read.csv(otufile, row.names = 1) 
+seqs = rownames(otu_df)
+rownames(otu_df) = NULL
+
+##TAXA file
+taxfile = "taxa_VRwater_silva132.csv"
+tax_df = read.csv(taxfile, row.names = 1)
+all(seqs == rownames(tax_df))
+rownames(tax_df) = NULL
+
+##METADATA file
+metfile = "WaterFiltersMetadata.txt"
+met_df = read.delim(metfile) #read tab-delimited instead of comma
+met_df$X.NAME = gsub('-', '.', as.character(met_df$X.NAME)) #just in case there are dashes
+met_df$X.NAME = gsub(' ', '.', met_df$X.NAME) #just in case there are spaces
+met_df$X.NAME = as.factor(met_df$X.NAME) #just in case
+rownames(met_df) = met_df$X.NAME   #make sure the rownames in the metadata data frame are the same as the row (or column, whichever is samples) in the otu data frame
+
+#Create the phyloseq object
+dat_water = phyloseq(otu_table(otu_df, taxa_are_rows = TRUE), # or FALSE if false
+                         tax_table(as.matrix(tax_df)),
+                         sample_data(met_df))
+
+#Clean data
+dat_water1 <- subset_samples(dat_water, Site != "JN") #remove JN site (fish not collected here)
+dat_water2 <- subset_samples(dat_water1, Site != "DN") #remove DN site (fish not collected here)
+
+
+#Prune
+dat_water <- prune_taxa(taxa_sums(dat_water2) >0, dat_water2)
+dat_water #7202
+
+reads <- sample_sums(dat_water2)
+as.table(reads)
+sum(reads)
+max(reads)
+min(reads)
+mean(reads)
+
+reads <- sample_sums(dat_water) #no dif from above
+as.table(reads)
+sum(reads)
+max(reads)
+min(reads)
+mean(reads)
+
+#Taxa proportions
+table(tax_table(dat_water)[,2]) #phyla
+
+get_taxa_unique(dat_water, "Phylum")
+get_taxa_unique(dat_water, "Class")
+get_taxa_unique(dat_water, "Order")
+get_taxa_unique(dat_water, "Family")
+get_taxa_unique(dat_water, "Genus")
+
+
+#Relative Abundance PHYLUM
+
+##Glomerate to Phylum
+rel_abun_phylum <- speedyseq::tax_glom(dat_water2, taxrank = "Phylum")
+rel_abun_all <- transform_sample_counts(rel_abun_phylum, function(x) x/sum(x))
+rel_abun_all_prune = prune_taxa(taxa_sums(rel_abun_all) > 0.02, rel_abun_all) 
+                                
+all_df <- psmelt(rel_abun_all_prune)
+
+##Aggregate
+all_df_agg <- aggregate(Abundance ~ Phylum + Site,
+    data = all_df, FUN = mean)
+
+all_df_agg$Site <- factor(all_df_agg$Site, 
+    levels=c("INV", "WM", "KW", "EIT", "FW", "HR", "PT1", "PT2", "BL", "GM", "WAT", "KIT"), 
+    labels=c("REF1", "REF2", "REF3", "DSW1", "DSW2", "DSW3", "DSK1", "DSK2", "DSK3", "DSK4", "Waterloo WWTP", "Kitchener WWTP"))
+
+##Relative Abundance Plot - Phylum Level
+rel_abun_plot <- ggplot(all_df_agg, aes(x=Site, y=Abundance, fill=Phylum)) + 
+  ylab("Relative Abundance") +
+  geom_bar(stat="identity") + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=4)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18)) 
+rel_abun_plot
+
+mycolors = c(brewer.pal(name="Dark2", n = 4), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot + scale_fill_manual(values = mycolors)
+
+
+
+
+#Bray Curtis Beta Diversity
+#Site Ellipse
+site_label_order = c("INV", "WM", "KW", "EIT", "FW", "HR", "PT1", "PT2", "BL", "GM", "WAT", "KIT")
+
+site_label_name = c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4", "Waterloo WWTP", "Kitchener WWTP")
+
+relabunbray.ord.site <- ordinate(dat_water, method = "PCoA", distance = "bray")
+
+relabunbray.plot.site <- plot_ordination(dat_water, relabunbray.ord.site,
+                                       color = "Site",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot.site$data$Site <- as.character(relabunbray.plot.site$data$Site)
+
+relabunbray.plot.site$data$Site <- factor(relabunbray.plot.site$data$Site, levels=site_label_order, labels=site_label_name)
+
+relabunbray.plot.site + geom_point(size=3) +
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=14, color="black")) +
+          theme(legend.title = element_text(size=15, color="black"))
+
+#Permanova
+library ("vegan")
+set.seed(1)
+dat_bray <- phyloseq::distance(dat_water2, method="bray")
+sampledf <- data.frame(sample_data(dat_water2))
+adonis(dat_bray ~ Site, data=sampledf) #Adonis
+
+
+
+
+#Alpha Diversity
+rare.depth <- min(sample_sums(dat_water2)) #rarify to minimum sample depth
+rare.depth #937
+dat_rare <- rarefy_even_depth(dat_water2, sample.size = rare.depth, rngseed=1414)
+
+
+#alpha diversity metrics with Sharokh rarefied
+alpha_diversity <- estimate_richness(dat_rare, split=TRUE, measures=c("Shannon", "Simpson"))
+#p <- plot_richness(dat_rare, x="Location", measures=c("Shannon", "Simpson")) + theme_bw()
+#p
+
+t <- plot_richness(dat_rare, x="Site", measures=c("Shannon", "Simpson")) + theme_bw()
+t
+
+#Alpha diversity stats & boxplots
+alpha_div <- data.frame(alpha_diversity)
+alpha_div$X.NAME <- NA
+alpha_div$X.NAME <- c(964:978, 982:990, 994:1005)
+
+alpha_met_df <- mutate(met_df, X.NAME=c(964:1005))
+alpha_div_merge <- merge(alpha_met_df, alpha_div, by = "X.NAME") 
+
+
+alpha_div_merge$Site <- factor(alpha_div_merge$Site, 
+    levels=c("INV", "WM", "KW", "EIT", "FW", "HR", "PT1", "PT2", "BL", "GM", "WAT", "KIT"), 
+    labels=c("REF1", "REF2", "REF3", "DSW1", "DSW2", "DSW3", "DSK1", "DSK2", "DSK3", "DSK4", "Waterloo WWTP", "Kitchener WWTP"))
+
+
+
+ggplot(data=alpha_div_merge, aes(x=Site, y=Shannon)) + geom_boxplot(stat="boxplot") + theme(strip.text = element_text(size = 11, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+
+
+#Alpha Diversity Stats
+alpha_anova <- aov(Shannon~Site, dat=alpha_div_merge)
+summary(alpha_anova)
+TukeyHSD(alpha_anova, ordered=FALSE, conf.level=0.95)
+
