@@ -5,5 +5,8 @@ This repository is for files, information and code associated with two Rainbow D
 # Field Project
 R code included in the file "Field Project" was used to analyze 16S rRNA bacterial sequences from fish collected upstream and downstream of wastewater treatment plants on the Grand River. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. 
 
+# Field Project - Water Filters
+R code included in the file "Field Project - Water Filters" was used to analyze 16S rRNA bacterial sequences from water filters collected upstream and downstream of wastewater treatment plants on the Grand River. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. 
+
 # Lab Project
 R code included in the file "Lab Project" was used to analyze 16S rRNA bacterial sequences from fish collected upstream of a wastewater treatment plant on the Grand River and transported to the laboratory. Fish were sampled in the field, after acclimation (14 days), and from 28 day exposure to control, wastewater effluent, or the antimicrobial triclosan. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. 
