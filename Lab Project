@@ -1,0 +1,663 @@
+#install.packages("phangorn")
+#install.packages("phytools")
+#BiocManager::install("microbiome")
+
+# load libraries for ordination and clustering
+library("cluster")
+library("phyloseq")
+packageDescription("phyloseq")$Version
+library("ggplot2")
+library("plyr")
+library("grid")
+library("ape")
+library("phangorn")
+library("phytools")
+library("vegan")
+library("tidyr")
+library("dplyr")
+library("data.table")
+library("microbiome")
+library("ggpubr")
+library("speedyseq")
+library("stringr")
+library("RColorBrewer")
+#library("cowplot")
+theme_set(theme_bw()) ## Default is gray, In case you want the white
+
+
+#Import files to make the phyloseq object 
+##OTU file
+otufile = "mergetab_nochim_transposed_KK-fishgut-Oct2019_v34_no_neg.csv" #No negatives in this file
+otu_df = read.csv(otufile, row.names = 1) 
+seqs = rownames(otu_df)
+rownames(otu_df) = NULL
+
+##TAXA file
+taxfile = "taxa_KK-fishgut-Oct2019_v34_silva132.csv"
+tax_df = read.csv(taxfile, row.names = 1)
+all(seqs == rownames(tax_df))
+rownames(tax_df) = NULL
+
+##METADATA file
+metfile = "map_file_exposure_2019.txt"
+met_df = read.delim(metfile) #read tab-delimited instead of comma
+met_df$X.NAME = gsub('-', '.', as.character(met_df$X.NAME)) #just in case there are dashes
+met_df$X.NAME = gsub(' ', '.', met_df$X.NAME) #just in case there are spaces
+met_df$X.NAME = as.factor(met_df$X.NAME) #just in case
+rownames(met_df) = met_df$X.NAME   #make sure the rownames in the metadata data frame are the same as the row (or column, whichever is samples) in the otu data frame
+
+#Create the phyloseq object
+dat_exposure = phyloseq(otu_table(otu_df, taxa_are_rows = TRUE), # or FALSE if false
+                         tax_table(as.matrix(tax_df)),
+                         sample_data(met_df))
+
+#Clean data
+dat_exposure_wash <- subset_samples(dat_exposure, SampleType == "Wash solution") #wash solutions
+dat_exposure_gut <- subset_samples(dat_exposure, SampleType == "Fish gut contents") #gut content only
+dat_exposure_gut #ASVs equals 12171
+
+dat_exposure_diet <- subset_samples(dat_exposure, SampleType=="Diet")
+dat_exposure_diet <- prune_taxa(taxa_sums(dat_exposure_diet)>0, dat_exposure_diet)
+dat_exposure_diet #527 taxa
+
+dat_exposure_gutdiet <- subset_samples(dat_exposure, SampleType != "Wash solution") #gut and diet
+dat_exposure_gutdiet <- prune_taxa(taxa_sums(dat_exposure_gutdiet)>0, dat_exposure_gutdiet)
+dat_exposure_gutdiet #12010
+
+#Pre Processing Data
+#Reads
+reads <- sample_sums(dat_exposure_gut)
+as.table(reads)
+sum(reads)
+max(reads)
+min(reads)
+mean(reads)
+
+#ASVs - bloodworm diet
+dat_exposure_diet  #527 taxa
+table(tax_table(dat_exposure_diet)[,2]) #phyla
+
+#ASVs - gut content
+dat_exposure_gut <- prune_taxa(taxa_sums(dat_exposure_gut) >0, dat_exposure_gut)
+dat_exposure_gut #11,853 ASVs
+
+dat_exposure_gut_df <- psmelt(dat_exposure_gut)
+
+#Get composition numbers
+head(tax_table(dat_exposure_gut))
+head(tax_table(dat_exposure_gut)[,2])
+table(tax_table(dat_exposure_gut)[,2])
+table(tax_table(dat_exposure_gut)[,5]) #top family overall
+
+#Get proportions of phyla (to get % divide by 11853 ASVs)
+dat_firm <- subset_taxa(dat_exposure_gut, Phylum=="Firmicutes")
+dat_firm<- prune_taxa(taxa_sums(dat_firm) >0, dat_firm)
+dat_firm #4117
+
+head(tax_table(dat_firm))
+table(tax_table(dat_firm)[,3]) #class
+table(tax_table(dat_firm)[,5]) #family
+table(tax_table(dat_firm)[,6]) #genera
+max(table(tax_table(dat_firm)[,6])) #to get max reads
+
+dat_proteo <- subset_taxa(dat_exposure_gut, Phylum=="Proteobacteria")
+dat_proteo<- prune_taxa(taxa_sums(dat_proteo) >0, dat_proteo)
+dat_proteo #3397
+head(tax_table(dat_proteo))
+table(tax_table(dat_proteo)[,3]) #class
+table(tax_table(dat_proteo)[,5]) #family
+table(tax_table(dat_proteo)[,6]) #genus
+max(table(tax_table(dat_proteo)[,6])) #too many genus for meaningful summary
+
+#get proportions of genera
+gen_tab <- table(tax_table(dat_lessKK)[,6])
+max(gen_tab) #Legionella
+write.csv(gen_tab, "genera_counts.csv") #check csv
+
+#Number of ASVs per fish/sample
+asv_df <- t(otu_table(dat_exposure_gut))
+asv <- psmelt(asv_df)
+fish_asv<-rowSums(asv_df != 0)
+min(fish_asv)
+max(fish_asv)
+mean(fish_asv)
+write.csv(fish_asv, "exposure_asv.csv") #to check #s of asvs per treatment group
+
+get_taxa_unique(dat_exposure_gut, "Phylum") #s of phyla
+get_taxa_unique(dat_exposure_gut, "Class")
+get_taxa_unique(dat_exposure_gut, "Order")
+get_taxa_unique(dat_exposure_gut, "Family")
+get_taxa_unique(dat_exposure_gut, "Genus")
+
+#Get information on ASVs for the field baseline
+dat_exposure_field <- subset_samples(dat_exposure_gut, Treatment=="Field")
+dat_exposure_field_prune <- prune_taxa(taxa_sums(dat_exposure_field) >0, dat_exposure_field)
+dat_exposure_field_prune #5581 ASVs
+
+table(tax_table(dat_exposure_field_prune)[,2])
+table(tax_table(dat_exposure_field_prune)[,5]) #top family overall
+
+#ASVs for acclimation baseline
+dat_exposure_acc <- subset_samples(dat_exposure_gut, Treatment=="Acclimation")
+dat_exposure_acc_prune <- prune_taxa(taxa_sums(dat_exposure_acc) >0, dat_exposure_acc)
+dat_exposure_acc_prune #2025 ASVs
+
+table(tax_table(dat_exposure_acc_prune)[,2])
+table(tax_table(dat_exposure_acc_prune)[,5]) #top family overall
+
+#ASVs for controls (42days)
+dat_exposure_ctrl <- subset_samples(dat_exposure_gut, Treatment=="control")
+dat_exposure_ctrl_prune <- prune_taxa(taxa_sums(dat_exposure_ctrl) >0, dat_exposure_ctrl)
+dat_exposure_ctrl_prune #1795 ASVs
+
+table(tax_table(dat_exposure_ctrl_prune)[,2])
+table(tax_table(dat_exposure_ctrl_prune)[,5]) #top family overall
+
+#ASVs for (10%)
+dat_exposure_10 <- subset_samples(dat_exposure_gut, Treatment=="10%")
+dat_exposure_10_prune <- prune_taxa(taxa_sums(dat_exposure_10) >0, dat_exposure_10)
+dat_exposure_10_prune #1935 ASVs
+
+table(tax_table(dat_exposure_10_prune)[,2])
+
+#ASVs for (20%)
+dat_exposure_20 <- subset_samples(dat_exposure_gut, Treatment=="20%")
+dat_exposure_20_prune <- prune_taxa(taxa_sums(dat_exposure_20) >0, dat_exposure_20)
+dat_exposure_20_prune #1588 ASVs
+
+table(tax_table(dat_exposure_20_prune)[,2])
+
+#ASVs for (40%)
+dat_exposure_40 <- subset_samples(dat_exposure_gut, Treatment=="40%")
+dat_exposure_40_prune <- prune_taxa(taxa_sums(dat_exposure_40) >0, dat_exposure_40)
+dat_exposure_40_prune #2098 ASVs
+
+table(tax_table(dat_exposure_40_prune)[,2])
+
+#ASVs for (TCS)
+dat_exposure_TCS <- subset_samples(dat_exposure_gut, Treatment=="TCS")
+dat_exposure_TCS_prune <- prune_taxa(taxa_sums(dat_exposure_TCS) >0, dat_exposure_TCS)
+dat_exposure_TCS_prune #1636 ASVs
+
+table(tax_table(dat_exposure_TCS_prune)[,2])
+
+
+#Relative Abundance of Diet
+
+rel_abun_phylum_diet <- speedyseq::tax_glom(dat_exposure_diet, taxrank="Phylum")
+rel_abun_diet <- transform_sample_counts(rel_abun_phylum_diet, function(x) x/sum(x))
+rel_abun_diet_prune <- prune_taxa(taxa_sums(rel_abun_diet) >0.02, rel_abun_diet)
+
+diet_df <- psmelt(rel_abun_diet_prune)
+diet_df_agg <- aggregate(Abundance ~ Phylum + X.NAME,
+    data = diet_df, FUN = mean)
+
+##plot
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+
+diet_rel_abun_plot <- ggplot(diet_df_agg, aes(x=X.NAME, y=Abundance, fill=Phylum)) +   
+                    geom_bar(stat="identity") + ylab("Relative Abundance") +
+                    xlab("Individual Sample") +
+                    theme(strip.text = element_text(size = 16, color="black")) +
+                    theme(legend.position="bottom", legend.key.size = unit(1, "cm"), 
+                    legend.text=element_text(size=16), legend.title=element_text(size=16)) + 
+                    guides (fill=guide_legend(nrow=2)) +
+                    theme(axis.title.x=element_text(size=16), 
+                    axis.text.x=element_blank(), 
+                    axis.ticks.x=element_blank(), 
+                    axis.title.y=element_text(size=16),
+                    axis.text.y=element_text(size=16),
+                    axis.text=element_text(size=16, color="black"))
+diet_rel_abun_plot + scale_fill_manual(values = mycolors)
+
+
+
+
+
+#Relative Abundance - gut contents, phylum level
+
+##Glomerate to Phylum
+rel_abun_phylum <- speedyseq::tax_glom(dat_exposure_gut, taxrank = "Phylum")
+rel_abun_all <- transform_sample_counts(rel_abun_phylum, function(x) x/sum(x))
+rel_abun_all_prune = prune_taxa(taxa_sums(rel_abun_all) > 0.02, rel_abun_all) 
+                                
+all_df <- psmelt(rel_abun_all_prune)
+
+##Aggregate
+all_df_agg <- aggregate(Abundance ~ Phylum + Treatment + Location + X.NAME, 
+    data = all_df, FUN = mean)
+
+
+all_df_agg$Location <- factor(all_df_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+all_df_agg$Treatment <- factor(all_df_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+#Relative Abundance Plot - Phylum level individuals
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+
+rel_abun_plot_individuals <- ggplot(all_df_agg, aes(x=X.NAME, y=Abundance, fill=Phylum)) +
+                             geom_bar(stat="identity") +  ylab("Relative Abundance") +
+                             xlab("Individual Sample") +
+                             facet_grid(~Treatment, scale="free") + 
+                             theme(strip.text = element_text(size = 16, color="black")) +
+                             theme(legend.position="bottom", legend.key.size = unit(1, "cm"), 
+                             legend.text=element_text(size=16), legend.title=element_text(size=16)) + 
+                             guides (fill=guide_legend(nrow=4)) +
+                             theme(axis.title.x=element_text(size=16), 
+                              axis.text.x=element_blank(), 
+                              axis.ticks.x=element_blank(), 
+                              axis.title.y=element_text(size=16),
+                              axis.text.y=element_text(size=16))
+                            axis.text=element_text(size=16, color="black")
+rel_abun_plot_individuals
+rel_abun_plot_individuals + scale_fill_manual(values = mycolors)
+
+
+
+##Relative Abundance Plot - Phylum Level
+##Aggregate
+all_df_agg <- aggregate(Abundance ~ Phylum + Treatment + Location, 
+    data = all_df, FUN = mean)
+
+
+all_df_agg$Location <- factor(all_df_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+all_df_agg$Treatment <- factor(all_df_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+rel_abun_plot_phylum <- ggplot(all_df_agg, aes(x=Treatment, y=Abundance, fill=Phylum)) + 
+  geom_bar(stat="identity") + ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=4)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18))
+rel_abun_plot_phylum
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_phylum + scale_fill_manual(values = mycolors)
+
+
+#Relative Abundance - Family Level
+
+##Glomerate to family
+rel_abun_family <- speedyseq::tax_glom(dat_exposure_gut, taxrank = "Family")
+rel_abun_fam <- transform_sample_counts(rel_abun_family, function(x) x/sum(x))
+rel_abun_fam_prune = prune_taxa(taxa_sums(rel_abun_fam) > 0.02, rel_abun_fam) 
+                                
+
+
+fam_df <- psmelt(rel_abun_fam_prune)
+
+##Aggregate
+fam_df_agg <- aggregate(Abundance ~ Phylum + Family + Treatment + Location, 
+    data = fam_df, FUN = mean)
+
+
+fam_df_agg$Location <- factor(fam_df_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+fam_df_agg$Treatment <- factor(fam_df_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+##Relative Abundance Plot - Family
+rel_abun_fam_plot <- ggplot(fam_df_agg, aes(x=Treatment, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=37)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_fam_plot
+
+#Top10 Familes
+##Glomerate to Phylum
+rel_abun_family<- speedyseq::tax_glom(dat_exposure_gut, taxrank = "Family")
+rel_abun_all_fam <- transform_sample_counts(rel_abun_family, function(x) x/sum(x))
+ 
+##Aggregate
+top10_fam = names(sort(taxa_sums(rel_abun_all_fam), TRUE)[1:10])
+top10_fam
+dat_top10_fam = prune_taxa(top10_fam, rel_abun_all_fam)
+
+top10_fam_df <- psmelt(dat_top10_fam)
+
+fam_top10_agg <- aggregate(Abundance ~ Location + Treatment + Phylum + Family, data=top10_fam_df, FUN=mean)
+    
+fam_top10_agg$Location <- factor(fam_top10_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+fam_top10_agg$Treatment <- factor(fam_top10_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+
+rel_abun_plot_fam_10 <- ggplot(fam_top10_agg, aes(x=Treatment, y=Abundance, fill=Family)) +
+  geom_bar(stat="identity") + 
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 11, color="black")) + 
+  labs(y = "Relative Abundance > 2%") + 
+  theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"),
+          legend.text=element_text(size=12)) + 
+  guides (fill=guide_legend(nrow=5)) +
+  theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"),
+                        axis.text=element_text(size=12, color="black"),
+                        axis.title=element_text(size=18)) +
+  ylim(c(0,1))
+rel_abun_plot_fam_10
+
+#Top 10 Proteobacteria ONLY (proteobacteria should go to 100%)
+#Relative Abundance of Proteobacteria - go to 100% remove everything else
+dat_proteo <- subset_taxa(dat_exposure_gut, Phylum=="Proteobacteria")
+rel_abun_proteo <- speedyseq::tax_glom(dat_proteo, taxrank="Family")
+rel_abun_proteo <- transform_sample_counts(rel_abun_proteo, function(x) x/sum(x))
+rel_abun_proteo_prune <- prune_taxa(taxa_sums(rel_abun_proteo)>0.02, rel_abun_proteo)
+
+proteo_df <- psmelt(rel_abun_proteo_prune)
+
+proteo_df_agg <- aggregate(Abundance ~ Treatment + Location + Phylum + Family, data=proteo_df, FUN=mean)
+    
+proteo_df_agg$Location <- factor(proteo_df_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+proteo_df_agg$Treatment <- factor(proteo_df_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+##Relative Abundance Plot - Proteobacteria Phylum
+rel_abun_plot_proteo <- ggplot(proteo_df_agg, aes(x=Treatment, y=Abundance, fill=Phylum)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_proteo
+
+##Relative Abundance Plot - Proteobacteria at the Family Level
+rel_abun_plot_proteo_fam <- ggplot(proteo_df_agg, aes(x=Treatment, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.1, "cm"), legend.text=element_text(size=5)) + guides (fill=guide_legend(nrow=8)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))  +
+  ylim(c(0,1))
+rel_abun_plot_proteo_fam #too many families
+
+
+#Top10 Proteo Fam
+top10_proteo_fam = names(sort(taxa_sums(rel_abun_proteo_prune), TRUE)[1:10])
+top10_proteo_fam
+dat_top10_proteo_fam = prune_taxa(top10_proteo_fam, rel_abun_proteo_prune)
+
+proteo_top10_fam <- psmelt(dat_top10_proteo_fam)
+
+proteo_top10_agg <- aggregate(Abundance ~ Treatment + Location + Phylum + Family, data=proteo_top10_fam, FUN=mean)
+    
+proteo_top10_agg$Location <- factor(proteo_top10_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+proteo_top10_agg$Treatment <- factor(proteo_top10_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+rel_abun_plot_proteo_fam <- ggplot(proteo_top10_agg, aes(x=Treatment, y=Abundance, fill=Family)) + geom_bar(stat="identity") + ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=4)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18)) + ylim(c(0,1))
+rel_abun_plot_proteo_fam
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_proteo_fam + scale_fill_manual(values = mycolors)
+
+##Relative Abundance of Firmicutes, to 100%
+dat_firm <- subset_taxa(dat_exposure_gut, Phylum=="Firmicutes")
+rel_abun_firm <- speedyseq::tax_glom(dat_firm, taxrank="Family")
+rel_abun_firm <- transform_sample_counts(rel_abun_firm, function(x) x/sum(x))
+rel_abun_firm_prune <- prune_taxa(taxa_sums(rel_abun_firm)>0.02, rel_abun_firm)
+
+
+firm_df <- psmelt(rel_abun_firm_prune)
+
+firm_df_agg <- aggregate(Abundance ~ Treatment + Location + Phylum + Family, data=firm_df, FUN=mean)
+    
+firm_df_agg$Location <- factor(firm_df_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+firm_df_agg$Treatment <- factor(firm_df_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+##Relative Abundance Plot - Firmicutes at the Family Level
+rel_abun_plot_firm_fam <- ggplot(firm_df_agg, aes(x=Treatment, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_firm_fam #too many fam
+
+
+#Top10 Firmicutes Fam
+top10_firm_fam = names(sort(taxa_sums(rel_abun_firm_prune), TRUE)[1:10])
+top10_firm_fam
+dat_top10_firm_fam = prune_taxa(top10_firm_fam, rel_abun_firm_prune)
+
+firm_top10_fam <- psmelt(dat_top10_firm_fam)
+
+firm_top10_agg <- aggregate(Abundance ~ Treatment + Location + Phylum + Family, data=firm_top10_fam, FUN=mean)
+    
+firm_top10_agg$Location <- factor(firm_top10_agg$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+firm_top10_agg$Treatment <- factor(firm_top10_agg$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+rel_abun_plot_firm_fam_10 <- ggplot(firm_top10_agg, aes(x=Treatment, y=Abundance, fill=Family)) + geom_bar(stat="identity") + ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=3)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18)) +
+  ylim(c(0,1))
+rel_abun_plot_firm_fam_10
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_firm_fam_10 + scale_fill_manual(values = mycolors)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Alpha Diversity (rarify first)
+rare.depth <- min(sample_sums(dat_exposure_gut)) #rarify to min sample depth
+rare.depth #840
+dat_rare <- rarefy_even_depth(dat_exposure_gut, sample.size = rare.depth, rngseed=1414)
+
+
+#alpha diversity metrics with Sharokh rarefied
+alpha_diversity <- estimate_richness(dat_rare, split=TRUE, measures=c("Shannon", "Simpson"))
+p <- plot_richness(dat_rare, x="Location", measures=c("Shannon", "Simpson")) + theme_bw()
+p
+
+t <- plot_richness(dat_rare, x="Treatment", measures=c("Shannon", "Simpson")) + theme_bw()
+t
+
+#Alpha diversity stats & boxplots
+alpha_div <- data.frame(alpha_diversity)
+alpha_div$X.NAME <- NA
+alpha_div$X.NAME <- c(679:693, 697:713, 720:817)
+
+alpha_met_df <- mutate(met_df, X.NAME=c(679:832))
+alpha_div_merge <- merge(alpha_met_df, alpha_div, by = "X.NAME") 
+
+alpha_div_merge$Location <- factor(alpha_div_merge$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+alpha_div_merge$Treatment <- factor(alpha_div_merge$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+
+ggplot(data=alpha_div_merge, aes(x=Treatment, y=Shannon)) + geom_boxplot(stat="boxplot") + theme(strip.text = element_text(size = 18, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=18, color="black"), axis.text=element_text(size=18, color="black"), axis.title=element_text(size=18))
+
+alpha_box <- boxplot(Shannon~Treatment, data=alpha_div_merge, las=2)
+alpha_box
+
+
+
+#Just plot exposure groups
+alpha_div_merge$Location <- factor(alpha_div_merge$Location, 
+    levels=c("Exposure"), 
+    labels=c("Exposure"))
+
+alpha_div_merge$Treatment <- factor(alpha_div_merge$Treatment, 
+    levels=c("control", "10%", "20%", "40%", "TCS"), 
+    labels=c("CTRL", "10%", "20%", "40%", "TCS"))
+    
+
+ggplot(data=alpha_div_merge, aes(x=Treatment, y=Shannon))  + geom_boxplot(stat="boxplot") + theme(strip.text = element_text(size = 11, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+
+#Just plot field, acclim, and ctrl
+alpha_div_merge$Location <- factor(alpha_div_merge$Location, 
+    levels=c("Field", "Acclimation", "Exposure"), 
+    labels=c("Field", "Acclimation", "Treatment"))
+
+alpha_div_merge$Treatment <- factor(alpha_div_merge$Treatment, 
+    levels=c("Field", "Acclimation", "control"), 
+    labels=c("Field", "Acclimation", "CTRL"))
+
+ggplot(data=alpha_div_merge, aes(x=Treatment, y=Shannon)) + geom_boxplot(stat="boxplot") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+
+#Alpha Diversity Stats
+alpha_anova_shan_treatment <- aov(Shannon~Treatment, dat=alpha_div_merge)
+summary(alpha_anova_shan_treatment)
+tt<-TukeyHSD(alpha_anova_shan_treatment, ordered=FALSE, conf.level=0.95)
+
+tt$Treatment[,"p adj"] #this will get you those really small p values
+
+alpha_anova_shan_location <- aov(Shannon~Location, dat=alpha_div_merge)
+summary(alpha_anova_shan_location)
+TukeyHSD(alpha_anova_shan_location, ordered=FALSE, conf.level=0.95)
+
+
+
+#Bray-Curtis: Treatment
+
+relabunbray.ord <- ordinate(dat_exposure_gut, method = "PCoA", distance = "bray")
+relabunbray.plot <- plot_ordination(dat_exposure_gut, relabunbray.ord,
+                                       color = "Treatment",
+                                       axes = c(1,2), 
+                                       title = "Bray Curtis PCoA")                                      
+relabunbray.plot
+                        
+
+#Treatment Ellipse
+treatment_label_order = c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS")
+
+treatment_label_name = c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS")
+
+relabunbray.ord.treatment <- ordinate(dat_exposure_gut, method = "PCoA", distance = "bray")
+
+relabunbray.plot <- plot_ordination(dat_exposure_gut, relabunbray.ord.treatment,
+                                       color = "Treatment",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot$data$Treatment <- as.character(relabunbray.plot$data$Treatment)
+
+relabunbray.plot$data$Treatment <- factor(relabunbray.plot$data$Treatment, levels=treatment_label_order,
+          labels=treatment_label_name)
+
+relabunbray.plot + stat_ellipse(geom="polygon", type="norm", alpha=0.2, aes(fill=Treatment)) + 
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=15, color="black")) + 
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+#Permanova
+library ("vegan")
+set.seed(1)
+dat_bray <- phyloseq::distance(dat_exposure_gut, method="bray")
+sampledf <- data.frame(sample_data(dat_exposure_gut))
+adonis(dat_bray ~ Treatment, data=sampledf) #Adonis
+
+#Pairwise Adonis - by treatment group, with padj
+library(devtools)
+install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+library(pairwiseAdonis)
+
+dat_bray <- phyloseq::distance(dat_exposure_gut, method="bray") #from above
+sampledf <- data.frame(sample_data(dat_exposure_gut)) #from above
+pairwise.adonis2(dat_bray ~ Treatment, data=sampledf) #Pairwise Adonis by Location with Padj
+
+#Scree Plot
+bray_dist = distance(dat_exposure_gut, method = "bray")
+lab_ord <- ordinate(dat_exposure_gut, method = "PCoA", distance = "bray_dist")
+scree <- plot_scree(lab_ord)
+scree + theme(axis.text.x=element_text(size=8, color="black"), axis.text.y=element_text(size=18, color="black"), axis.text=element_text(size=18, color="black"), axis.title=element_text(size=18)) 
+
+
+
+
+#Bray-Curtis: Fish gut and bloodworm diet
+relabunbray.ord <- ordinate(dat_exposure_gutdiet, method = "PCoA", distance = "bray")
+ 
+relabunbray.plot <- plot_ordination(dat_exposure_gutdiet, relabunbray.ord,
+                                       color = "SampleType",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot + geom_point(size=5)
+
+#Permanova
+library ("vegan")
+set.seed(1)
+dat_bray <- phyloseq::distance(dat_exposure_gutdiet, method="bray")
+sampledf <- data.frame(sample_data(dat_exposure_gutdiet))
+adonis(dat_bray ~ SampleType, data=sampledf) #Adonis
+
+
+
+
+
+#Fish Condition (K)
+gut_df <- psmelt(dat_exposure_gut)
+
+gut_df$Treatment <- factor(gut_df$Treatment, 
+    levels=c("Field", "Acclimation", "control", "10%", "20%", "40%", "TCS"), 
+    labels=c("Field", "Acclimation", "CTRL", "10%", "20%", "40%", "TCS"))
+  
+  
+qplot(x=Treatment, y=Condition.Factor, data=gut_df, geom=c("boxplot")) 
+
+ggplot(data=gut_df, aes(x=Treatment, y=Condition.Factor)) + geom_boxplot(stat="boxplot") +
+labs(y="Condition Factor") +
+theme(strip.text = element_text(size = 12, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=18, color="black"), axis.text=element_text(size=18, color="black"), axis.title=element_text(size=18))
+
+x <- gut_df$Condition.Factor
+mean(x) #1.058493
+range(x)#0.692000 - 2.218673
+
+anova_K <- aov(Condition.Factor~Treatment, dat=gut_df)
+summary(anova_K)
+tukey_K <- TukeyHSD(anova_K, ordered=FALSE, conf.level=0.95)
+
+tukey_K$Treatment[,"p adj"] #this will get you those really small p values
+
+
