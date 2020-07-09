@@ -1,1 +1,877 @@
-This file contains R script used to analyze 16S rRNA bacterial DNA sequences from the gut contents of fish upstream and downstream of wastewater treatment plants on the Grand River (Ontario, Canada). 
+# load libraries for ordination and clustering
+library("cluster")
+library("phyloseq")
+packageDescription("phyloseq")$Version
+library("ggplot2")
+library("plyr")
+library("grid")
+library("ape")
+library("phangorn")
+library("phytools")
+library("vegan")
+library("tidyr")
+library("dplyr")
+library("data.table")
+library("microbiome")
+library("ggpubr")
+library("speedyseq")
+library("stringr")
+library("RColorBrewer")
+library("reshape2")
+library("dplyr")
+theme_set(theme_bw())
+
+#Import files to make the phyloseq object 
+##OTU file
+otufile = "seqtab_nochim_transposed_KKfish_v34.csv"
+otu_df = read.csv(otufile, row.names = 1) 
+seqs = rowes(otu_df)
+rownames(otu_df) = NULL
+
+##TAXA file
+taxfile = "taxa_KKfish_silva132.csv"
+tax_df = read.csv(taxfile, row.names = 1)
+all(seqs == rownames(tax_df))
+rownames(tax_df) = NULL
+
+##METADATA file
+metfile = "map_file_fall_2018_NEWER.txt"
+met_df = read.delim(metfile) #read tab-delimited instead of comma
+met_df$X.NAME = gsub('-', '.', as.character(met_df$X.NAME)) #just in case there are dashes
+met_df$X.NAME = gsub(' ', '.', met_df$X.NAME) #just in case there are spaces
+met_df$X.NAME = as.factor(met_df$X.NAME) #just in case
+rownames(met_df) = met_df$X.NAME   #make sure the rownames in the metadata data frame are the same as the row (or column, whichever is samples) in the otu data frame
+
+#Create the phyloseq object
+dat = phyloseq(otu_table(otu_df, taxa_are_rows = TRUE), # or FALSE if false
+                         tax_table(as.matrix(tax_df)),
+                         sample_data(met_df))
+
+
+
+
+
+
+
+
+
+#Clean data
+dat_wash <- subset_samples(dat, SampleType == "wash") #wash solutions only
+dat_lessKK <- subset_samples(dat, SampleType == "gut content") #gut content only
+
+
+
+
+
+
+
+#Pre Processing Data
+#Reads
+reads <- sample_sums(dat_lessKK)
+as.table(reads)
+sum(reads)
+max(reads)
+min(reads)
+mean(reads)
+
+#ASVs in gut contents (totals and by taxonomic levels)
+##Total
+dat_lessKK <- prune_taxa(taxa_sums(dat_lessKK) >0, dat_lessKK)
+dat_lessKK #18,461 ASVs
+
+##Check tax table
+head(tax_table(dat_lessKK))
+table(tax_table(dat_lessKK)[,2]) #phyla
+
+##Get proportions of ASVs by phyla (to get % divide by 18461 ASVs)
+table(tax_table(dat_lessKK)[,2])
+
+dat_proteo <- subset_taxa(dat_lessKK, Phylum=="Proteobacteria")
+head(tax_table(dat_proteo))
+table(tax_table(dat_proteo)[,3]) #class
+table(tax_table(dat_proteo)[,5]) #family
+table(tax_table(dat_proteo)[,6]) #genera
+
+dat_cyano <- subset_taxa(dat_lessKK, Phylum=="Cyanobacteria")
+head(tax_table(dat_cyano))
+table(tax_table(dat_cyano)[,6]) #genus #top genera: cyanobium (76), Planktothrix (14), Synechocystsis (14)
+table(tax_table(dat_cyano)[,5])
+
+##Get proportions of genera
+gen_tab <- table(tax_table(dat_lessKK)[,6])
+max(gen_tab) #Legionella
+write.csv(gen_tab, "genera_counts.csv") #check counts in .CSV
+
+##Number of ASVs per fish/sample
+asv_df <- t(otu_table(dat_lessKK))
+
+asv <- psmelt(asv_df)
+fish_asv<-rowSums(asv_df != 0)
+
+min(fish_asv)
+max(fish_asv)
+mean(fish_asv)
+
+write.csv(fish_asv, "fish_asv.csv") #check counts in .csv
+
+##Get total numbers of ASVs at each level
+get_taxa_unique(dat_lessKK, "Phylum")
+get_taxa_unique(dat_lessKK, "Class")
+get_taxa_unique(dat_lessKK, "Order")
+get_taxa_unique(dat_lessKK, "Family")
+get_taxa_unique(dat_lessKK, "Genus")
+
+
+#Abundance of Top Phyla
+##Average abundance of top phyla (Proteobacteria, Firmicutes, Cyanobacteria) across all sites/locations
+all_df <- psmelt(dat_lessKK) #make phyloseq object a dataframe
+all_df_agg <- aggregate(Abundance ~ Phylum + Site + Location, data = all_df, FUN = mean) #aggregate to Phylum level, take the mean
+
+all_df_agg$Site <- factor(all_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), 
+                   labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+all_df_agg$Location <- factor(all_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), 
+                        labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+
+with(all_df_agg[all_df_agg$Phylum == "Proteobacteria", ], table(Abundance)) 
+with(all_df_agg[all_df_agg$Phylum == "Firmicutes", ], table(Abundance)) 
+with(all_df_agg[all_df_agg$Phylum == "Cyanobacteria", ], table(Abundance)) 
+
+##Average by location
+
+all_df_agg <- aggregate(Abundance ~ Phylum + Location, 
+    data = all_df, FUN = mean)
+    
+all_df_agg$Site <- factor(all_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), 
+                   labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+all_df_agg$Location <- factor(all_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), 
+                        labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+
+(with(all_df_agg[all_df_agg$Phylum == "Proteobacteria", ], table(Abundance, Location)))
+data_proteo <- data.frame(Location = c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"),
+            Abundance = c(0.21195903938761, 0.440825007045276, 0.372226305450351))
+
+with(all_df_agg[all_df_agg$Phylum == "Firmicutes", ], table(Abundance, Location)) 
+
+with(all_df_agg[all_df_agg$Phylum == "Cyanobacteria", ], table(Abundance, Location))
+
+##Average by site
+
+all_df_agg <- aggregate(Abundance ~ Phylum + Site, 
+    data = all_df, FUN = mean)
+    
+with(all_df_agg[all_df_agg$Phylum == "Proteobacteria", ], table(Abundance, Site))
+with(all_df_agg[all_df_agg$Phylum == "Firmicutes", ], table(Abundance, Site)) 
+with(all_df_agg[all_df_agg$Phylum == "Cyanobacteria", ], table(Abundance, Site)) 
+
+
+
+
+
+
+
+#Relative Abundance - wash solutions, phylum level
+##Glomerate to Phylum - Wash solutions
+rel_abun_wash <- speedyseq::tax_glom(dat_wash, taxrank = "Phylum")
+rel_abun_wash <- transform_sample_counts(rel_abun_wash, function(x) x/sum(x))
+rel_abun_wash_prune = prune_taxa(taxa_sums(rel_abun_wash) > 0.02,
+                                rel_abun_wash) 
+                                
+
+wash_df <- psmelt(rel_abun_wash_prune)
+
+##Aggregate - Wash Solutions
+wash_df_agg <- aggregate(Abundance ~ Phylum + Site + Location, 
+    data = wash_df, FUN = mean)
+    
+wash_df_agg$Site <- factor(wash_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+wash_df_agg$Location <- factor(wash_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Plot - Wash Solutions
+
+rel_abun_plot_wash <- ggplot(wash_df_agg, aes(x=Site, y=Abundance, fill=Phylum)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black"), plot.title = element_text(hjust = 0.5)) + labs(title = "Relative Abundance of Wash Solutions", y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=90, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_wash
+
+
+
+
+
+
+
+
+
+
+#Relative Abundance - gut contents, phylum level
+##Glomerate to Phylum
+rel_abun_phylum <- speedyseq::tax_glom(dat_lessKK, taxrank = "Phylum")
+rel_abun_all <- transform_sample_counts(rel_abun_phylum, function(x) x/sum(x))
+rel_abun_all_prune = prune_taxa(taxa_sums(rel_abun_all) > 0.02, rel_abun_all) 
+                                
+dat_lessKK <- subset_samples(rel_abun_all_prune, SampleType == "gut content") #gut content only
+
+all_df <- psmelt(dat_lessKK)
+
+##Aggregate
+all_df_agg <- aggregate(Abundance ~ Phylum + Site + Location, data = all_df, FUN = mean)
+all_df_agg$Site <- factor(all_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), 
+                   labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+all_df_agg$Location <- factor(all_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), 
+                       labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - Phylum Level
+rel_abun_plot_phylum <- ggplot(all_df_agg, aes(x=Site, y=Abundance, fill=Phylum)) + geom_bar(stat="identity") + 
+  ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=4)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18))
+rel_abun_plot_phylum
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_phylum + scale_fill_manual(values = mycolors)
+
+
+
+
+
+
+
+
+#Relative Abundance - Individual fish, phylum level 
+##Aggregate
+all_df_agg <- aggregate(Abundance ~ Phylum + Site + Location + X.NAME, 
+    data = all_df, FUN = mean)
+    
+all_df_agg$Site <- factor(all_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), 
+                   labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+all_df_agg$Location <- factor(all_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+##Relative Abundance Plot - Phylum Level - INDIVIDUALS
+
+HowManyPhyla <- length(levels(as.factor(all_df_agg$Phylum))) #get number of phyla in df
+HowManyPhyla #14 (matches plot)
+
+rel_abun_plot_individuals <- ggplot(all_df_agg, aes(x=X.NAME, y=Abundance, fill=Phylum)) +
+                             geom_bar(stat="identity") + ylab("Relative Abundance") +
+                             xlab("Individual Samples") +
+                             facet_grid(~Location, scale="free") + 
+                             theme(strip.text = element_text(size = 16, color="black")) +
+                             theme(legend.position="bottom", legend.key.size = unit(1, "cm"), 
+                             legend.text=element_text(size=16), legend.title=element_text(size=16)) + 
+                             guides (fill=guide_legend(nrow=4)) +
+                             theme(axis.title.x=element_text(size=16), 
+                              axis.text.x=element_blank(), 
+                              axis.ticks.x=element_blank(), 
+                              axis.title.y=element_text(size=16),
+                              axis.text.y=element_text(size=16))
+                            axis.text=element_text(size=16, color="black")
+rel_abun_plot_individuals
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_individuals + scale_fill_manual(values = mycolors)
+
+
+#Relative Abundance - Average relative abundance, class Level 
+##Glomerate to Class
+rel_abun_class <- speedyseq::tax_glom(dat_lessKK, taxrank = "Class")
+rel_abun_class <- transform_sample_counts(rel_abun_class, function(x) x/sum(x))
+rel_abun_class_prune = prune_taxa(taxa_sums(rel_abun_class) > 0.02,
+                                rel_abun_class) 
+class_df <- psmelt(rel_abun_class_prune)
+
+##Aggregate
+class_df_agg <- aggregate(Abundance ~ Site + Location + Class, 
+    data = class_df, FUN = mean)
+    
+class_df_agg$Site <- factor(class_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+class_df_agg$Location <- factor(class_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - Class Level
+rel_abun_plot_class <- ggplot(class_df_agg, aes(x=Site, y=Abundance, fill=Class)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.2, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=10)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_class
+
+
+
+
+
+
+
+
+#Relative Abundance - Average relative abundance, order Level 
+
+##Glomerate to ORDER
+rel_abun_order <- speedyseq::tax_glom(dat_lessKK, taxrank = "Order")
+rel_abun_order <- transform_sample_counts(rel_abun_order, function(x) x/sum(x))
+rel_abun_order_prune = prune_taxa(taxa_sums(rel_abun_order) > 0.02,
+                                rel_abun_order) 
+order_df <- psmelt(rel_abun_order_prune)
+
+##Aggregate
+order_df_agg <- aggregate(Abundance ~ Site + Location + Order, 
+    data = order_df, FUN = mean)
+    
+order_df_agg$Site <- factor(order_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+order_df_agg$Location <- factor(order_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - ORDER Level
+rel_abun_plot_order <- ggplot(order_df_agg, aes(x=Site, y=Abundance, fill=Order)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.2, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=23)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_order
+
+
+
+
+
+
+#Relative Abundance - Average relative abundance, family Level 
+
+##Glomerate to FAMILY
+rel_abun_family <- speedyseq::tax_glom(dat_lessKK, taxrank = "Family")
+rel_abun_family <- transform_sample_counts(rel_abun_family, function(x) x/sum(x))
+rel_abun_family_prune = prune_taxa(taxa_sums(rel_abun_family) > 0.02,
+                                rel_abun_family) 
+family_df <- psmelt(rel_abun_family_prune)
+
+##Aggregate
+family_df_agg <- aggregate(Abundance ~ Site + Location + Family, 
+    data = family_df, FUN = mean)
+    
+family_df_agg$Site <- factor(family_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+family_df_agg$Location <- factor(family_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - FAMILY Level
+rel_abun_plot_family <- ggplot(family_df_agg, aes(x=Site, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.2, "cm"), legend.text=element_text(size=8)) + guides (fill=guide_legend(nrow=30)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_family
+
+
+
+
+
+
+#Relative Abundance - Average relative abundance, genus Level 
+
+##Glomerate to GENUS
+rel_abun_genus <- speedyseq::tax_glom(dat_lessKK, taxrank = "Genus")
+rel_abun_genus <- transform_sample_counts(rel_abun_genus, function(x) x/sum(x))
+rel_abun_genus_prune = prune_taxa(taxa_sums(rel_abun_genus) > 0.02,
+                                rel_abun_genus) 
+genus_df <- psmelt(rel_abun_genus_prune)
+
+##Aggregate
+genus_df_agg <- aggregate(Abundance ~ Site + Location + Genus, 
+    data = genus_df, FUN = mean)
+    
+genus_df_agg$Site <- factor(genus_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+genus_df_agg$Location <- factor(genus_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - GENUS Level
+rel_abun_plot_genus <- ggplot(genus_df_agg, aes(x=Site, y=Abundance, fill=Genus)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.2, "cm"), legend.text=element_text(size=8)) + guides (fill=guide_legend(nrow=41)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_genus
+
+#Relative Abundance of Proteobacteria only - go to 100% remove everything else
+dat_proteo <- subset_taxa(dat, Phylum=="Proteobacteria")
+rel_abun_proteo <- speedyseq::tax_glom(dat_proteo, taxrank="Family")
+rel_abun_proteo <- transform_sample_counts(rel_abun_proteo, function(x) x/sum(x))
+rel_abun_proteo_prune <- prune_taxa(taxa_sums(rel_abun_proteo)>0.02, rel_abun_proteo)
+rel_abun_lessKK <- subset_samples(rel_abun_proteo_prune, SampleType == "gut content") #gut content only
+
+
+proteo_df <- psmelt(rel_abun_lessKK)
+
+proteo_df_agg <- aggregate(Abundance ~ Site + Location + Phylum + Family, data=proteo_df, FUN=mean)
+    
+proteo_df_agg$Site <- factor(proteo_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+proteo_df_agg$Location <- factor(proteo_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - Proteobacteria Phylum
+rel_abun_plot_proteo <- ggplot(proteo_df_agg, aes(x=Site, y=Abundance, fill=Phylum)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_proteo
+
+##Relative Abundance Plot - Proteobacteria at the Family Level
+rel_abun_plot_proteo_fam <- ggplot(proteo_df_agg, aes(x=Site, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_proteo_fam
+
+rel_abun_plot_proteo_fam <- ggplot(proteo_df_agg, aes(x=Site, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.1, "cm"), legend.text=element_text(size=5)) + guides (fill=guide_legend(nrow=8)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))  +
+  ylim(c(0,1))
+rel_abun_plot_proteo_fam
+
+
+#Top10 Proteo Fam
+top10_proteo_fam = names(sort(taxa_sums(rel_abun_lessKK), TRUE)[1:10])
+top10_proteo_fam
+dat_top10_proteo_fam = prune_taxa(top10_proteo_fam, rel_abun_lessKK)
+
+proteo_top10_fam <- psmelt(dat_top10_proteo_fam)
+
+proteo_top10_agg <- aggregate(Abundance ~ Site + Location + Phylum + Family, data=proteo_top10_fam, FUN=mean)
+    
+proteo_top10_agg$Site <- factor(proteo_top10_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+proteo_top10_agg$Location <- factor(proteo_top10_agg$Location, 
+                      levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"),
+                      labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+rel_abun_plot_proteo_fam <- ggplot(proteo_top10_agg, aes(x=Site, y=Abundance, fill=Family)) +
+  geom_bar(stat="identity") + ylab("RelativeAbundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=4)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18)) +
+  ylim(c(0,1))
+rel_abun_plot_proteo_fam
+
+mycolors = c(brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_proteo_fam + scale_fill_manual(values = mycolors)
+
+
+
+##Relative Abundance of Firmicutes only, go to 100% remove everything else
+dat_firm <- subset_taxa(dat, Phylum=="Firmicutes")
+rel_abun_firm <- speedyseq::tax_glom(dat_firm, taxrank="Family")
+rel_abun_firm <- transform_sample_counts(rel_abun_firm, function(x) x/sum(x))
+rel_abun_firm_prune <- prune_taxa(taxa_sums(rel_abun_firm)>0.02, rel_abun_firm)
+rel_abun_firm_gut <- subset_samples(rel_abun_firm_prune, SampleType == "gut content") #gut content only
+
+
+firm_df <- psmelt(rel_abun_firm_gut)
+
+firm_df_agg <- aggregate(Abundance ~ Site + Location + Phylum + Family, data=firm_df, FUN=mean)
+    
+firm_df_agg$Site <- factor(firm_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+firm_df_agg$Location <- factor(firm_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - Firmicutes at the Family Level
+rel_abun_plot_firm_fam <- ggplot(firm_df_agg, aes(x=Site, y=Abundance, fill=Family)) + geom_bar(stat="identity") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + labs(y = "Relative Abundance > 2%") + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12)) + guides (fill=guide_legend(nrow=5)) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+rel_abun_plot_firm_fam
+
+
+#Top10 Firmicutes Fam
+top10_firm_fam = names(sort(taxa_sums(rel_abun_firm_gut), TRUE)[1:10])
+top10_firm_fam
+dat_top10_firm_fam = prune_taxa(top10_firm_fam, rel_abun_firm_gut)
+
+firm_top10_fam <- psmelt(dat_top10_firm_fam)
+
+firm_top10_agg <- aggregate(Abundance ~ Site + Location + Phylum + Family, data=firm_top10_fam, FUN=mean)
+    
+firm_top10_agg$Site <- factor(firm_top10_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+firm_top10_agg$Location <- factor(firm_top10_agg$Location, 
+                      levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"),
+                      labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+rel_abun_plot_firm_fam_10 <- ggplot(firm_top10_agg, aes(x=Site, y=Abundance, fill=Family)) +
+  geom_bar(stat="identity") + ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=3)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18)) +
+  ylim(c(0,1))
+rel_abun_plot_firm_fam_10
+
+mycolors = c(brewer.pal(name="Paired", n = 12)) #use colour palette
+rel_abun_plot_firm_fam_10 + scale_fill_manual(values = mycolors)
+
+##Relative Abundance of Cyanobacteria only, go to 100% remove everything else
+dat_cyano <- subset_taxa(dat, Phylum=="Cyanobacteria")
+rel_abun_cyano <- speedyseq::tax_glom(dat_cyano, taxrank="Family")
+rel_abun_cyano <- transform_sample_counts(rel_abun_cyano, function(x) x/sum(x))
+#rel_abun_cyano_prune <- prune_taxa(taxa_sums(rel_abun_cyano)>0.02, rel_abun_cyano) ####Error here - nothing larger than 2%
+rel_abun_cyano_gut <- subset_samples(rel_abun_cyano, SampleType == "gut content") #gut content only
+
+cyano_df <- psmelt(rel_abun_cyano_gut)
+
+cyano_df_agg <- aggregate(Abundance ~ Site + Location + Phylum + Family, data=cyano_df, FUN=mean)
+    
+cyano_df_agg$Site <- factor(cyano_df_agg$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+cyano_df_agg$Location <- factor(cyano_df_agg$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+##Relative Abundance Plot - Cyanobacteria at the Family Level
+rel_abun_plot_cyano_fam <- ggplot(cyano_df_agg, aes(x=Site, y=Abundance, fill=Family)) + geom_bar(stat="identity") +
+  ylab("Relative Abundance") +
+  facet_grid(~Location, scale="free_x", space = 'free_x') + 
+  theme(strip.text = element_text(size = 16, color="black")) + 
+  theme(legend.position="bottom", legend.key.size = unit(1, "cm"),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) +
+  guides (fill=guide_legend(nrow=5)) +
+  theme(axis.title.y=element_text(size=16),
+        axis.text.y=element_text(size=16),
+        axis.text.x=element_text(angle=45, hjust=1, size=16, color="black"),
+                        axis.title=element_text(size=18))
+rel_abun_plot_cyano_fam
+
+mycolors = c(brewer.pal(name="Dark2", n = 3), brewer.pal(name="Paired", n = 12))#use colour palette
+rel_abun_plot_cyano_fam + scale_fill_manual(values = mycolors)
+
+
+
+
+
+#Condition factor vs Site/Location
+dat_df <- psmelt(dat_lessKK)
+
+dat_df$Site <- factor(dat_df$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+dat_df$Location <- factor(dat_df$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+boxplot_K <- ggplot(data=dat_df, aes(x=Site, y=Condition.Factor)) + geom_boxplot(stat="boxplot") + facet_grid(~Location, scale="free") + labs(y="Condition Factor") + theme(strip.text = element_text(size = 18, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=18, color="black"), axis.text=element_text(size=18, color="black"), axis.title=element_text(size=18))
+boxplot_K
+
+
+anova_k <- aov(Condition.Factor~Site, data = dat_df)
+summary(anova_k)
+TukeyHSD(anova_k, ordered=FALSE, conf.level=0.95)
+
+anova_k_loc<- aov(Condition.Factor~Location, data = dat_df)
+summary(anova_k_loc)
+TukeyHSD(anova_k_loc, ordered=FALSE, conf.level=0.95)
+
+
+#Alpha Diversity 
+##Rarefy first to minimum sample depth
+dat_gut <- subset_samples(dat, SampleType == "gut content") #gut content only
+
+rare.depth <- min(sample_sums(dat_gut))
+rare.depth #3373
+dat_rare <- rarefy_even_depth(dat_gut, sample.size = rare.depth, rngseed=1414)
+
+##alpha diversity metrics 
+alpha_diversity <- estimate_richness(dat_rare, split=TRUE, measures=NULL)
+p <- plot_richness(dat_rare, x="Location", measures=c("Shannon", "Simpson")) + theme_bw()
+
+alpha_diversity <- estimate_richness(dat_rare, split=TRUE, measures=c("Shannon", "Simpson"))
+alpha_div <- data.frame(alpha_diversity)
+alpha_div$X.NAME <- NA
+alpha_div$X.NAME <- c(97:111, 115:130, 134:148, 152:157, 159:166, 170:184, 188:202, 25:39, 43:57, 61:66, 68:75, 79:93) #put samples in chronological order, missing numbers are wash solutions
+
+alpha_met_df <- mutate(met_df, X.NAME = c(25:205))
+alpha_div_merge <- merge(alpha_met_df, alpha_div, by = "X.NAME") #merge metadata and alpha diversity numbers
+
+alpha_anova_simp <- aov(Simpson~Location, data = alpha_div_merge)
+summary(alpha_anova_simp)
+
+alpha_anova_shan <- aov(Shannon~Location, data = alpha_div_merge)
+summary(alpha_anova_shan)
+TukeyHSD(alpha_anova_shan, ordered=FALSE, conf.level=0.95)
+
+alpha_anova_shan_site <- aov(Shannon~Site, data = alpha_div_merge)
+summary(alpha_anova_shan)
+TukeyHSD(alpha_anova_shan_site, ordered=FALSE, conf.level=0.95)
+
+
+#Ordered Shannon Diversity boxplot
+alpha_div_merge$Site <- factor(alpha_div_merge$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+alpha_div_merge$Location <- factor(alpha_div_merge$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+boxplot <- ggplot(data=alpha_div_merge, aes(x=Site, y=Shannon)) + geom_boxplot(stat="boxplot") + facet_grid(~Location, scale="free") + theme(strip.text = element_text(size = 11, color="black")) + theme(axis.text.x=element_text(angle=45, hjust=1, size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18))
+
+#Boxplot stats
+stats <-  boxplot(Shannon ~ Site, data = alpha_div_merge)
+stats
+
+
+
+#Berger-Parker Dominance 
+bp_dom <- dominance(dat_rare, index="DBP")
+bp_dom_df <- mutate(bp_dom, X.NAME=c(97:111, 115:130, 134:148, 152:157, 159:166, 170:184, 188:202, 25:39, 43:57, 61:66, 68:75, 79:93)) #put samples in order
+dominance_merge <- merge(alpha_met_df, bp_dom_df, by="X.NAME") #merge metadata and berger-parker dominance
+
+xyplot(dbp~Location, data=dominance_merge)
+
+dominance_merge$Site <- factor(dominance_merge$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+dominance_merge$Location <- factor(dominance_merge$Location, levels=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), labels=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"))
+
+ggplot(data=dominance_merge, aes(x=Location, y=dbp)) + geom_boxplot(stat="boxplot") + facet_grid(~Location, scale="free")
+
+ggplot(data=dominance_merge, aes(x=Site, y=dbp)) + geom_boxplot(stat="boxplot") + facet_grid(~Location, scale="free") + theme(axis.text.x=element_text(angle=45, hjust=1, size=18)) + ylab("Berger-Parker Dominance") + theme(axis.title=element_text(size=18), strip.text = element_text(size = 18))
+
+alpha_anova_bp <- aov(dbp~Location, data = dominance_merge)
+summary(alpha_anova_bp)
+TukeyHSD(alpha_anova_bp, ordered=FALSE, conf.level=0.95)
+
+alpha_anova_bp_site <- aov(dbp~Site, data = dominance_merge)
+summary(alpha_anova_bp_site)
+TukeyHSD(alpha_anova_bp_site, ordered=FALSE, conf.level=0.95)
+
+
+
+#Differential Abundance of Bacteria using Deseq2 package
+plotDistances = function(p = dat_lessKK , m = "bray", s = "X.NAME", d = "Location") {
+
+  # calc distances
+  wu = phyloseq::distance(p, m)
+  wu.m = melt(as.matrix(wu))
+  
+  # remove self-comparisons
+  wu.m = wu.m %>%
+    filter(as.character(Var1) != as.character(Var2)) %>%
+    mutate_if(is.factor,as.character)
+  
+  # get sample data (S4 error OK and expected)
+  sd = sample_data(p) %>%
+    select(s, d) %>%
+    mutate_if(is.factor,as.character)
+  
+  # combined distances with sample data
+  colnames(sd) = c("Var1", "Type1")
+  wu.sd = left_join(wu.m, sd, by = "Var1")
+  
+  colnames(sd) = c("Var2", "Type2")
+  wu.sd = left_join(wu.sd, sd, by = "Var2")
+  
+  # plot
+  ggplot(wu.sd, aes(x = Type2, y = value)) +
+    theme_bw() +
+    geom_point() +
+    geom_boxplot(aes(color = ifelse(Type1 == Type2, "red", "black"))) +
+    scale_color_identity() +
+    facet_wrap(~ Type1, scales = "free_x") +
+    theme(axis.text.x=element_text(angle = 45, hjust = 1, vjust = 0.5)) + 
+    ggtitle(paste0("Distance Metric = ", m))
+}
+
+plotDistances(dat, "bray", "X.NAME", "Location")
+
+#deseq2
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("DESeq2")
+library("DESeq2")
+packageVersion("DESeq2")
+
+##REF and DSW (Deseq2 compares 2 things so compared by location; reference and downstream Waterloo)
+
+dat_ref_dsw = subset_samples(dat_lessKK, Location != "Downstream_Kitchener")
+dat_ref_dsw
+
+dat_deseq2_ref_dsw <- phyloseq_to_deseq2(dat_ref_dsw, ~Location)
+dat_deseq2_ref_dsw <- DESeq(dat_deseq2_ref_dsw, test="Wald", fitType="parametric")
+dat_deseq2_ref_dsw
+
+res = results(dat_deseq2_ref_dsw, cooksCutoff = FALSE)
+alpha = 0.01
+sigtab = res[which(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(dat_ref_dsw)[rownames(sigtab), ], "matrix"))
+head(sigtab)
+
+library("ggplot2")
+theme_set(theme_bw())
+scale_fill_discrete <- function(palname = "Set1", ...) {
+    scale_fill_brewer(palette = palname, ...)
+}
+# Phylum order
+x = tapply(sigtab$log2FoldChange, sigtab$Phylum, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Phylum = factor(as.character(sigtab$Phylum), levels=names(x))
+# Genus order
+x = tapply(sigtab$log2FoldChange, sigtab$Genus, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Genus = factor(as.character(sigtab$Genus), levels=names(x))
+ggplot(sigtab, aes(x=Genus, y=log2FoldChange, color=Phylum)) + geom_point(size=6) + 
+  theme(axis.text.x = element_text(angle = -90, hjust = 0, vjust=0.5)) + theme(axis.text=element_text(size=15), axis.title=element_text(size=15)) +
+          theme(legend.text=element_text(size=15, color="black")) + 
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+##REF and DSK (Deseq2 compares 2 things so compared by location; reference and downstream Kitchener)
+
+dat_ref_dsk = subset_samples(dat_lessKK, Location != "Downstream_Waterloo")
+dat_ref_dsk
+
+dat_deseq2_ref_dsk <- phyloseq_to_deseq2(dat_ref_dsk, ~Location)
+dat_deseq2_ref_dsk <- DESeq(dat_deseq2_ref_dsk, test="Wald", fitType="parametric")
+dat_deseq2_ref_dsk
+
+res = results(dat_deseq2_ref_dsk, cooksCutoff = FALSE)
+alpha = 0.01
+sigtab = res[which(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(dat_ref_dsk)[rownames(sigtab), ], "matrix"))
+head(sigtab)
+
+library("ggplot2")
+theme_set(theme_bw())
+scale_fill_discrete <- function(palname = "Set1", ...) {
+    scale_fill_brewer(palette = palname, ...)
+}
+# Phylum order
+x = tapply(sigtab$log2FoldChange, sigtab$Phylum, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Phylum = factor(as.character(sigtab$Phylum), levels=names(x))
+# Genus order
+x = tapply(sigtab$log2FoldChange, sigtab$Genus, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Genus = factor(as.character(sigtab$Genus), levels=names(x))
+ggplot(sigtab, aes(x=Genus, y=log2FoldChange, color=Phylum)) + geom_point(size=6) + 
+  theme(axis.text.x = element_text(angle = -90, hjust = 0, vjust=0.5)) + theme(axis.text=element_text(size=15), axis.title=element_text(size=15)) +
+          theme(legend.text=element_text(size=15, color="black")) + 
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+
+
+
+
+##DSW and DSK (Deseq2 compares 2 things so compared by location; downstream Waterloo and downstream Kitchener)
+dat_dsw_dsk = subset_samples(dat_lessKK, Location != "Upstream")
+dat_dsw_dsk
+
+dat_deseq2_dsw_dsk <- phyloseq_to_deseq2(dat_dsw_dsk, ~Location)
+dat_deseq2_dsw_dsk <- DESeq(dat_deseq2_dsw_dsk, test="Wald", fitType="parametric")
+dat_deseq2_dsw_dsk
+
+res = results(dat_deseq2_dsw_dsk, cooksCutoff = FALSE)
+alpha = 0.01
+sigtab = res[which(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(dat_dsw_dsk)[rownames(sigtab), ], "matrix"))
+head(sigtab)
+
+library("ggplot2")
+theme_set(theme_bw())
+scale_fill_discrete <- function(palname = "Set1", ...) {
+    scale_fill_brewer(palette = palname, ...)
+}
+# Phylum order
+x = tapply(sigtab$log2FoldChange, sigtab$Phylum, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Phylum = factor(as.character(sigtab$Phylum), levels=names(x))
+# Genus order
+x = tapply(sigtab$log2FoldChange, sigtab$Genus, function(x) max(x))
+x = sort(x, TRUE)
+sigtab$Genus = factor(as.character(sigtab$Genus), levels=names(x))
+ggplot(sigtab, aes(x=Genus, y=log2FoldChange, color=Phylum)) + geom_point(size=6) + 
+  theme(axis.text.x = element_text(angle = -90, hjust = 0, vjust=0.5))
+
+
+
+#Beta Diversity
+##Bray Curtis distance matrix 
+bray_curtis_dist <- distance(dat_lessKK, method="bray", type="samples")
+bray_curtis_matrix <- as.matrix(bray_curtis_dist)
+
+##By location
+relabunbray.ord <- ordinate(dat_lessKK, method = "PCoA", distance = "bray")
+relabunbray.plot <- plot_ordination(dat_lessKK, relabunbray.ord,
+                                       color = "Location",
+                                       axes = c(1,2), 
+                                       title = "Bray Curtis PCoA")
+                                       
+relabunbray.plot.site <- plot_ordination(dat_lessKK, relabunbray.ord,
+                                       color = "Site",
+                                       axes = c(1,2))
+                        
+#polygon                         
+relabunbray.plot+geom_point(size=3)+scale_color_manual(values=c("#4363d8", "#42d4f4", "#469990")) + theme(legend.position="bottom", legend.key.size = unit(0.5, "cm"), legend.text=element_text(size=12, color="black")) + theme(legend.title = element_blank()) + theme(axis.text.x=element_text(size=12, color="black"), axis.text=element_text(size=12, color="black"), axis.title=element_text(size=18)) 
+
+#Location Ellipse
+relabunbray.plot
+relabunbray.plot + geom_point(size=3) + stat_ellipse(geom="polygon", type = "norm", alpha=".5", aes(fill=Location)) + labs(title="Bray Curtis PCoA") + 
+                theme(plot.title = element_text(hjust = 0.5))
+location_label_order = c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener")
+location_label_name = c("Upstream", "Downstream Waterloo", "Downstream Kitchener")
+relabunbray.ord <- ordinate(dat_lessKK, method = "PCoA", distance = "bray")
+relabunbray.plot <- plot_ordination(dat_lessKK, relabunbray.ord,
+                                       color = "Location",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot$data$Location <- as.character(relabunbray.plot$data$Location)
+
+relabunbray.plot$data$Location <- factor(relabunbray.plot$data$Location, levels=location_label_order,
+          labels=location_label_name)
+
+relabunbray.plot + stat_ellipse(geom="polygon", type="norm", alpha=0.2, aes(fill=Location)) + 
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=15, color="black")) + 
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+#Site Ellipse
+site_label_order = c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4")
+
+site_label_name = c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4")
+
+relabunbray.ord.site <- ordinate(dat_lessKK, method = "PCoA", distance = "bray")
+
+relabunbray.plot.site <- plot_ordination(dat_lessKK, relabunbray.ord.site,
+                                       color = "Site",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot.site$data$Site <- as.character(relabunbray.plot.site$data$Site)
+
+relabunbray.plot.site$data$Site <- factor(relabunbray.plot.site$data$Site, levels=site_label_order, labels=site_label_name)
+
+relabunbray.plot.site + stat_ellipse(geom="polygon", type="norm", alpha=0.2, aes(fill=Site)) + 
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=14, color="black")) +
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+#Site
+relabunbray.ord <- ordinate(dat_lessKK, method = "PCoA", distance = "bray")
+relabunbray.plot <- plot_ordination(dat_lessKK, relabunbray.ord,
+                                  color = "Site",
+                                  axes = c(1,2),
+                                  title = "Bray-Curtis") +  
+                                  theme(plot.title = element_text(hjust = 0.5))
+                                  
+relabunbray.plot + geom_point(size=3) +
+  scale_color_manual(values=c("#e6194B", "#3cb44b", "#ffe119", "#4363d8", 
+                              "#f58231", "#911eb4", "#42d4f4", "#f032e6", 
+                              "#bfef45", "#fabebe")) 
+
+
+##Permanova and Pairwise Permanova
+#permanova
+set.seed(1)
+dat_bray <- phyloseq::distance(dat_lessKK, method="bray")
+sampledf <- data.frame(sample_data(dat_lessKK))
+adonis(dat_bray ~ Location, data=sampledf) #PERMANOVA Location
+adonis(dat_bray ~ Site, data=sampledf) #PERMANOVA Site
+      
+#pairwise
+library(devtools)
+#install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+library(pairwiseAdonis)
+
+dat_bray <- phyloseq::distance(dat_lessKK, method="bray") #from above
+sampledf <- data.frame(sample_data(dat_lessKK)) #from above
+pairwise.adonis2(dat_bray ~ Location, data=sampledf) $Pairwise Adonis by Location with Padj
+pairwise.adonis2(dat_bray ~ Site, data=sampledf) #Pairwise Adonis by SITE with Padj
+
+
+
+#Scree plot
+bray_dist = distance(dat_lessKK, method = "bray")
+field_ord <- ordinate(dat_lessKK, method = "PCoA", distance = "bray_dist")
+scree <- plot_scree(field_ord)
+scree + theme(axis.text.x=element_text(size=8, color="black"), axis.text.y=element_text(size=18, color="black"), 
+        axis.text=element_text(size=18, color="black"), axis.title=element_text(size=18)) #axis 1, 2 account for most variation explained
+
+
