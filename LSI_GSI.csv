@@ -1,0 +1,155 @@
+#NAME,SampleType,Location,Tank,Treatment,Total Length (cm),Total Weight (g),Condition Factor ,Liver Weight (g),Gonad Weight (g),GSI,Notes
+KK679,Fish gut contents,Field,,Field,6.3,3.221,0.188524751,0.124,0.236,7.326917106,
+KK680,Fish gut contents,Field,,Field,6.4,3.16,0.202823712,0.109,0.279,8.829113924,
+KK681,Fish gut contents,Field,,Field,5,1.565,1.304448623,0.053,0.141,9.009584665,
+KK682,Fish gut contents,Field,,Field,5.2,1.737,0.992210659,0.053,0.156,8.981001727,
+KK683,Fish gut contents,Field,,Field,6.3,3.208,0.190825966,0.086,0.074,2.306733167,
+KK684,Fish gut contents,Field,,Field,5.5,2.034,0.653596689,0.066,0.08,3.933136676,low gut content
+KK685,Fish gut contents,Field,,Field,6.1,2.843,0.265460101,0.084,0.171,6.014773127,low gut content
+KK686,Fish gut contents,Field,,Field,5.1,1.759,0.937071345,0.058,0.147,8.357021035,
+KK687,Fish gut contents,Field,,Field,4.7,1.33,1.99775826,0.05,0.119,8.947368421,
+KK688,Fish gut contents,Field,,Field,4.8,1.347,1.963986283,0.047,0.092,6.829992576,
+KK689,Fish gut contents,Field,,Field,6.5,3.532,0.147520125,0.084,0.09,2.54813137,
+KK690,Fish gut contents,Field,,Field,6.5,3.535,0.147144862,0.113,0.325,9.193776521,
+KK691,Fish gut contents,Field,,Field,5.5,1.973,0.716112795,0.056,0.088,4.460212874,
+KK692,Fish gut contents,Field,,Field,6.4,2.934,0.253395936,0.087,0.121,4.124062713,
+KK693,Fish gut contents,Field,,Field,5.1,1.57,1.317865894,0.062,0.072,4.585987261,
+KK694,Wash solution,Field,,,,,,,,,field - bleach
+KK695,Wash solution,Field,,,,,,,,,field - ethanol
+KK696,Wash solution,Field,,,,,,,,,field - nanopure
+KK697,Fish gut contents,Acclimation,7,Acclimation,5.4,1.816,0.901667108,0.025,0.013,0.715859031,
+KK698,Fish gut contents,Acclimation,7,Acclimation,5.5,2.033,0.654561645,0.024,0.07,3.443187408,
+KK699,Fish gut contents,Acclimation,7,Acclimation,5.8,2.973,0.220720802,0.026,0.032,1.076353851,low gut content
+KK700,Fish gut contents,Acclimation,7,Acclimation,5.5,2.067,0.622789468,0.013,0.022,1.064344461,low gut content
+KK701,Fish gut contents,Acclimation,7,Acclimation,5.4,2.329,0.427449973,0.031,0.02,0.858737656,
+KK702,Fish gut contents,Acclimation,1,Acclimation,5.1,1.463,1.628685379,0.024,0.018,1.230348599,
+KK703,Fish gut contents,Acclimation,1,Acclimation,5.3,1.645,1.190633678,0.018,0.13,7.902735562,
+KK704,Fish gut contents,Acclimation,1,Acclimation,5.4,1.896,0.792280124,0.028,0.077,4.061181435,
+KK705,Fish gut contents,Acclimation,1,Acclimation,5.4,2.022,0.653206212,0.029,0.147,7.270029674,
+KK706,Fish gut contents,Acclimation,1,Acclimation,5.4,1.678,1.142925416,0.024,0.02,1.191895113,
+KK707,Fish gut contents,Acclimation,1,Acclimation,5,1.24,2.622436306,0.024,0.056,4.516129032,
+KK708,Fish gut contents,Acclimation,1,Acclimation,5.2,1.593,1.286340716,0.016,0.03,1.883239171,
+KK709,Fish gut contents,Acclimation,2,Acclimation,5.7,2.552,0.34295161,0.034,0.074,2.89968652,
+KK710,Fish gut contents,Acclimation,2,Acclimation,5.3,1.64,1.201556855,0.023,0.018,1.097560976,
+KK711,Fish gut contents,Acclimation,2,Acclimation,5.8,2.399,0.420085073,0.024,0.204,8.503543143,
+KK712,Fish gut contents,Acclimation,2,Acclimation,5.4,1.973,0.703092563,0.022,0.169,8.565636087,
+KK713,Fish gut contents,Acclimation,2,Acclimation,5,1.619,1.178228322,0.019,0.054,3.335392217,
+KK714,Wash solution,Acclimation,,,,,,,,,
+KK715,Wash solution,Acclimation,,,,,,,,,
+KK716,Wash solution,Acclimation,,,,,,,,,
+KK717,Diet,,,,,,,,,,
+KK718,Diet,,,,,,,,,,
+KK719,Diet,,,,,,,,,,
+KK720,Fish gut contents,Exposure,15,10%,4.9,1.238,,0.007,0.05,4.038772213,Exposure period; low gut content
+KK721,Fish gut contents,Exposure,15,10%,5.1,1.438,,0.019,0.014,0.973574409,
+KK722,Fish gut contents,Exposure,15,10%,5,1.284,,0.01,0.016,1.246105919,
+KK723,Fish gut contents,Exposure,15,10%,5,1.251,,0.009,0.012,0.959232614,low gut content
+KK724,Fish gut contents,Exposure,15,10%,5.5,1.853,,0.021,0.032,1.726929304,
+KK725,Fish gut contents,Exposure,15,10%,5.3,1.454,,0.01,0.142,9.766162311,
+KK726,Fish gut contents,Exposure,8,20%,5.2,1.318,,0.01,0.015,1.138088012,parasites (many had parasites - stopped recording this)
+KK727,Fish gut contents,Exposure,8,20%,4.8,1.09,,0.01,0.018,1.651376147,
+KK728,Fish gut contents,Exposure,8,20%,5,1.346,,0.013,0.125,9.286775632,low gut content
+KK729,Fish gut contents,Exposure,8,20%,5.9,2.085,,0.019,0.039,1.870503597,
+KK730,Fish gut contents,Exposure,8,20%,5.5,1.758,,0.023,0.021,1.194539249,
+KK731,Fish gut contents,Exposure,8,20%,4.8,1.318,,0.007,0.096,7.283763278,
+KK732,Fish gut contents,Exposure,8,20%,4.9,1.21,,0.008,0.017,1.404958678,low gut content
+KK733,Fish gut contents,Exposure,11,40%,5.3,1.737,,0.012,0.108,6.21761658,
+KK734,Fish gut contents,Exposure,11,40%,4.9,1.005,,0.007,0.017,1.691542289,"bloody gonad, one lobe"
+KK735,Fish gut contents,Exposure,11,40%,5.3,1.546,,0.019,0.024,1.552393273,low gut content
+KK736,Fish gut contents,Exposure,11,40%,5.2,1.422,,0.014,0.032,2.250351617,
+KK737,Fish gut contents,Exposure,11,40%,4.3,1.764,,0.013,,0,"low gut content, missing gonad"
+KK738,Fish gut contents,Exposure,11,40%,4.5,1.052,,0.013,0.01,0.950570342,
+KK739,Fish gut contents,Exposure,11,40%,5.8,2.038,,0.011,0.027,1.324828263,
+KK740,Fish gut contents,Exposure,11,40%,4.9,1.246,,0.014,0.019,1.524879615,
+KK741,Fish gut contents,Exposure,13,control,5.5,1.807,,0.024,0.02,1.106806862,low gut content
+KK742,Fish gut contents,Exposure,13,control,4.9,1.486,,0.028,0.128,8.613728129,
+KK743,Fish gut contents,Exposure,13,control,5.3,1.577,,0.018,0.02,1.268230818,
+KK744,Fish gut contents,Exposure,13,control,5.8,2.23,,0.016,0.027,1.210762332,
+KK745,Fish gut contents,Exposure,13,control,5.5,1.734,,0.02,0.092,5.305651672,
+KK746,Fish gut contents,Exposure,13,control,4.9,1.392,,0.021,0.033,2.370689655,
+KK747,Fish gut contents,Exposure,5,TCS,5.6,1.56,,0.09,0.019,1.217948718,
+KK748,Fish gut contents,Exposure,5,TCS,4.6,1.188,,0.016,0.011,0.925925926,
+KK749,Fish gut contents,Exposure,5,TCS,5.4,1.717,,0.017,0.078,4.542807222,
+KK750,Fish gut contents,Exposure,5,TCS,5.8,2.533,,0.015,0.218,8.606395578,
+KK751,Fish gut contents,Exposure,5,TCS,4.6,1.054,,0.014,0.026,2.466793169,
+KK752,Fish gut contents,Exposure,5,TCS,5.1,1.315,,0.008,0.015,1.140684411,low gut content
+KK753,Fish gut contents,Exposure,5,TCS,5,1.435,,0.018,0.087,6.06271777,
+KK754,Fish gut contents,Exposure,4,TCS,5.6,1.843,,0.02,0.019,1.030927835,
+KK755,Fish gut contents,Exposure,4,TCS,5.4,1.98,,0.018,0.033,1.666666667,
+KK756,Fish gut contents,Exposure,4,TCS,5.7,2.245,,0.016,0.03,1.336302895,
+KK757,Fish gut contents,Exposure,4,TCS,4.6,1.145,,0.022,0.027,2.358078603,
+KK758,Fish gut contents,Exposure,14,control,5.5,1.784,,0.008,0.16,8.968609865,
+KK759,Fish gut contents,Exposure,14,control,5.5,2.147,,0.017,0.025,1.164415463,low gut content
+KK760,Fish gut contents,Exposure,14,control,4.7,1.101,,0.015,0.011,0.999091735,low gut content
+KK761,Fish gut contents,Exposure,14,control,5.4,1.672,,0.02,0.019,1.136363636,
+KK762,Fish gut contents,Exposure,14,control,5.2,1.335,,0.01,0.038,2.846441948,
+KK763,Fish gut contents,Exposure,14,control,5.6,2.266,,0.028,0.03,1.3239188,
+KK764,Fish gut contents,Exposure,14,control,4.1,0.705,,0.06,0.009,1.276595745,
+KK765,Fish gut contents,Exposure,18,10%,5.7,1.755,,0.015,0.208,11.85185185,
+KK766,Fish gut contents,Exposure,18,10%,5.7,1.831,,0.02,0.018,0.983069361,
+KK767,Fish gut contents,Exposure,18,10%,5.2,1.465,,0.014,0.021,1.433447099,
+KK768,Fish gut contents,Exposure,18,10%,5.2,1.823,,0.024,0.03,1.645639057,
+KK769,Fish gut contents,Exposure,18,10%,5.6,1.712,,0.016,0.022,1.285046729,
+KK770,Fish gut contents,Exposure,18,10%,4.8,1.172,,0.014,0.013,1.109215017,low gut content
+KK771,Fish gut contents,Exposure,18,10%,4.9,1.265,,0.023,0.02,1.581027668,
+KK772,Fish gut contents,Exposure,3,20%,5.7,2.062,,0.018,0.024,1.163918526,
+KK773,Fish gut contents,Exposure,3,20%,5.4,1.581,,0.016,0.052,3.289057559,low gut content
+KK774,Fish gut contents,Exposure,3,20%,5.3,1.578,,0.019,0.01,0.633713561,
+KK775,Fish gut contents,Exposure,3,20%,5.4,1.721,,0.018,0.122,7.088901801,
+KK776,Fish gut contents,Exposure,3,20%,5.3,1.608,,0.012,0.011,0.684079602,low gut content
+KK777,Fish gut contents,Exposure,3,20%,4.9,1.185,,0.014,0.021,1.772151899,
+KK778,Fish gut contents,Exposure,3,20%,6.2,2.516,,0.015,0.032,1.271860095,
+KK779,Fish gut contents,Exposure,12,40%,5.8,1.85,,0.018,0.02,1.081081081,
+KK780,Fish gut contents,Exposure,12,40%,5.5,1.517,,0.014,0.022,1.450230719,
+KK781,Fish gut contents,Exposure,12,40%,5.6,1.44,,0.014,0.023,1.597222222,
+KK782,Fish gut contents,Exposure,12,40%,5.1,1.058,,0.008,0.022,2.079395085,
+KK783,Fish gut contents,Exposure,12,40%,4.9,1.135,,0.02,0.019,1.674008811,low gut content
+KK784,Fish gut contents,Exposure,12,40%,5,1.008,,0.01,0.012,1.19047619,low gut content
+KK785,Fish gut contents,Exposure,6,40%,5.9,1.87,,0.018,0.155,8.288770053,
+KK786,Fish gut contents,Exposure,6,40%,6.4,2.106,,0.024,0.044,2.089268756,
+KK787,Fish gut contents,Exposure,6,40%,5.5,1.28,,0.015,0.036,2.8125,
+KK788,Fish gut contents,Exposure,6,40%,5.7,1.35,,0.017,0.021,1.555555556,
+KK789,Fish gut contents,Exposure,6,40%,6,2.235,,0.018,0.317,14.18344519,
+KK790,Fish gut contents,Exposure,6,40%,4.9,1.045,,0.012,0.015,1.435406699,
+KK791,Fish gut contents,Exposure,6,40%,4.9,1.186,,0.01,0.035,2.951096121,
+KK792,Fish gut contents,Exposure,16,control,5.6,1.737,,0.019,0.023,1.32412205,
+KK793,Fish gut contents,Exposure,16,control,5.5,1.34,,0.013,0.034,2.537313433,
+KK794,Fish gut contents,Exposure,16,control,5.5,1.329,,0.019,0.093,6.997742664,
+KK795,Fish gut contents,Exposure,16,control,5.8,1.355,,0.014,0.131,9.667896679,
+KK796,Fish gut contents,Exposure,16,control,5.4,1.329,,0.01,0.123,9.255079007,
+KK797,Fish gut contents,Exposure,16,control,6.6,2.732,,0.038,0.018,0.65885798,bloody gonad
+KK798,Fish gut contents,Exposure,16,control,4.8,0.92,,0.01,0.039,4.239130435,
+KK799,Fish gut contents,Exposure,17,10%,5.1,1.04,,0.008,0.028,2.692307692,
+KK800,Fish gut contents,Exposure,17,10%,6,1.885,,0.021,0.028,1.485411141,
+KK801,Fish gut contents,Exposure,17,10%,5.1,1.215,,0.016,0.03,2.469135802,
+KK802,Fish gut contents,Exposure,17,10%,6.1,1.817,,0.02,0.238,13.09851403,low gut content
+KK803,Fish gut contents,Exposure,17,10%,5.4,1.626,,0.015,0.118,7.257072571,
+KK804,Fish gut contents,Exposure,17,10%,5.9,1.835,,0.026,0.029,1.580381471,
+KK805,Fish gut contents,Exposure,9,20%,5.2,1.046,,0.008,0.014,1.338432122,
+KK806,Fish gut contents,Exposure,9,20%,5.1,1.017,,0.011,0.011,1.081612586,
+KK807,Fish gut contents,Exposure,9,20%,5,0.865,,0.007,0.022,2.543352601,
+KK808,Fish gut contents,Exposure,9,20%,5.8,1.464,,0.015,0.036,2.459016393,
+KK809,Fish gut contents,Exposure,9,20%,5.4,1.317,,0.016,0.087,6.605922551,
+KK810,Fish gut contents,Exposure,9,20%,5.5,1.367,,0.022,0.08,5.852231163,
+KK811,Fish gut contents,Exposure,9,20%,5.1,1.144,,0.012,0.087,7.604895105,
+KK812,Fish gut contents,Exposure,10,TCS,6,1.978,,0.016,0.231,11.67846309,
+KK813,Fish gut contents,Exposure,10,TCS,6.1,2.221,,0.028,0.195,8.779828906,
+KK814,Fish gut contents,Exposure,10,TCS,5.3,1.209,,0.014,0.021,1.736972705,
+KK815,Fish gut contents,Exposure,10,TCS,5.1,1.138,,0.012,0.01,0.878734622,
+KK816,Fish gut contents,Exposure,10,TCS,6.2,2.202,,0.025,0.027,1.226158038,
+KK817,Fish gut contents,Exposure,10,TCS,5.5,1.357,,0.008,0.021,1.547531319,
+KK818,Wash solution,Exposure,,control,,,,,,,control - bleach
+KK819,Wash solution,Exposure,,control,,,,,,,control - ethanol
+KK820,Wash solution,Exposure,,control,,,,,,,control - nanopure
+KK821,Wash solution,Exposure,,TCS,,,,,,,TCS - bleach
+KK822,Wash solution,Exposure,,TCS,,,,,,,TCS - ethanol
+KK823,Wash solution,Exposure,,TCS,,,,,,,TCS - nanopure
+KK824,Wash solution,Exposure,,10%,,,,,,,10% - bleach
+KK825,Wash solution,Exposure,,10%,,,,,,,10% - ethanol
+KK826,Wash solution,Exposure,,10%,,,,,,,10% - nanopure
+KK827,Wash solution,Exposure,,20%,,,,,,,20% - bleach
+KK828,Wash solution,Exposure,,20%,,,,,,,20% - ethanol
+KK829,Wash solution,Exposure,,20%,,,,,,,20% - nanopure
+KK830,Wash solution,Exposure,,40%,,,,,,,40% -bleach
+KK831,Wash solution,Exposure,,40%,,,,,,,40% - ethanol
+KK832,Wash solution,Exposure,,40%,,,,,,,40% - nanopure

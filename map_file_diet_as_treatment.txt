@@ -1,0 +1,155 @@
+#NAME	SampleType	Location	Tank	Treatment	Total Length (cm)	Total Weight (g)	Condition Factor 	Liver Weight (g)	Gonad Weight (g)	Notes
+KK679	Fish gut contents	Field		Field	6.3	3.221	1.288157826	0.124	0.236	
+KK680	Fish gut contents	Field		Field	6.4	3.16	1.205444336	0.109	0.279	
+KK681	Fish gut contents	Field		Field	5	1.565	1.252	0.053	0.141	
+KK682	Fish gut contents	Field		Field	5.2	1.737	1.23534934	0.053	0.156	
+KK683	Fish gut contents	Field		Field	6.3	3.208	1.282958804	0.086	0.074	
+KK684	Fish gut contents	Field		Field	5.5	2.034	1.222539444	0.066	0.08	low gut content
+KK685	Fish gut contents	Field		Field	6.1	2.843	1.252527745	0.084	0.171	low gut content
+KK686	Fish gut contents	Field		Field	5.1	1.759	1.326035989	0.058	0.147	
+KK687	Fish gut contents	Field		Field	4.7	1.33	1.281026362	0.05	0.119	
+KK688	Fish gut contents	Field		Field	4.8	1.347	1.217990451	0.047	0.092	
+KK689	Fish gut contents	Field		Field	6.5	3.532	1.286117433	0.084	0.09	
+KK690	Fish gut contents	Field		Field	6.5	3.535	1.287209832	0.113	0.325	
+KK691	Fish gut contents	Field		Field	5.5	1.973	1.185875282	0.056	0.088	
+KK692	Fish gut contents	Field		Field	6.4	2.934	1.119232178	0.087	0.121	
+KK693	Fish gut contents	Field		Field	5.1	1.57	1.183556852	0.062	0.072	
+KK694	Wash solution	Field								field - bleach
+KK695	Wash solution	Field								field - ethanol
+KK696	Wash solution	Field								field - nanopure
+KK697	Fish gut contents	Acclimation	7	Acclimation	5.4	1.816	1.15327948	0.025	0.013	
+KK698	Fish gut contents	Acclimation	7	Acclimation	5.5	2.033	1.221938392	0.024	0.07	
+KK699	Fish gut contents	Acclimation	7	Acclimation	5.8	2.973	1.523740211	0.026	0.032	low gut content
+KK700	Fish gut contents	Acclimation	7	Acclimation	5.5	2.067	1.242374155	0.013	0.022	low gut content
+KK701	Fish gut contents	Acclimation	7	Acclimation	5.4	2.329	1.479068231	0.031	0.02	
+KK702	Fish gut contents	Acclimation	1	Acclimation	5.1	1.463	1.10289406	0.024	0.018	
+KK703	Fish gut contents	Acclimation	1	Acclimation	5.3	1.645	1.104938976	0.018	0.13	
+KK704	Fish gut contents	Acclimation	1	Acclimation	5.4	1.896	1.204084743	0.028	0.077	
+KK705	Fish gut contents	Acclimation	1	Acclimation	5.4	2.022	1.284103033	0.029	0.147	
+KK706	Fish gut contents	Acclimation	1	Acclimation	5.4	1.678	1.0656404	0.024	0.02	
+KK707	Fish gut contents	Acclimation	1	Acclimation	5	1.24	0.992	0.024	0.056	
+KK708	Fish gut contents	Acclimation	1	Acclimation	5.2	1.593	1.132936959	0.016	0.03	
+KK709	Fish gut contents	Acclimation	2	Acclimation	5.7	2.552	1.378021847	0.034	0.074	
+KK710	Fish gut contents	Acclimation	2	Acclimation	5.3	1.64	1.101580499	0.023	0.018	
+KK711	Fish gut contents	Acclimation	2	Acclimation	5.8	2.399	1.229550207	0.024	0.204	
+KK712	Fish gut contents	Acclimation	2	Acclimation	5.4	1.973	1.252984809	0.022	0.169	
+KK713	Fish gut contents	Acclimation	2	Acclimation	5	1.619	1.2952	0.019	0.054	
+KK714	Wash solution	Acclimation								
+KK715	Wash solution	Acclimation								
+KK716	Wash solution	Acclimation								
+KK717	Diet	Diet		Diet						
+KK718	Diet	Diet		Diet						
+KK719	Diet	Diet		Diet						
+KK720	Fish gut contents	Exposure	15	10%	4.9	1.238	1.052282637	0.007	0.05	Exposure period; low gut content
+KK721	Fish gut contents	Exposure	15	10%	5.1	1.438	1.084047614	0.019	0.014	
+KK722	Fish gut contents	Exposure	15	10%	5	1.284	1.0272	0.01	0.016	
+KK723	Fish gut contents	Exposure	15	10%	5	1.251	1.0008	0.009	0.012	low gut content
+KK724	Fish gut contents	Exposure	15	10%	5.5	1.853	1.113749061	0.021	0.032	
+KK725	Fish gut contents	Exposure	15	10%	5.3	1.454	0.97664515	0.01	0.142	
+KK726	Fish gut contents	Exposure	8	20%	5.2	1.318	0.937357761	0.01	0.015	parasites (many had parasites - stopped recording this)
+KK727	Fish gut contents	Exposure	8	20%	4.8	1.09	0.985604745	0.01	0.018	
+KK728	Fish gut contents	Exposure	8	20%	5	1.346	1.0768	0.013	0.125	low gut content
+KK729	Fish gut contents	Exposure	8	20%	5.9	2.085	1.015196296	0.019	0.039	
+KK730	Fish gut contents	Exposure	8	20%	5.5	1.758	1.056649136	0.023	0.021	
+KK731	Fish gut contents	Exposure	8	20%	4.8	1.318	1.19176794	0.007	0.096	
+KK732	Fish gut contents	Exposure	8	20%	4.9	1.21	1.02848303	0.008	0.017	low gut content
+KK733	Fish gut contents	Exposure	11	40%	5.3	1.737	1.166734956	0.012	0.108	
+KK734	Fish gut contents	Exposure	11	40%	4.9	1.005	0.854235905	0.007	0.017	"bloody gonad, one lobe"
+KK735	Fish gut contents	Exposure	11	40%	5.3	1.546	1.038441129	0.019	0.024	low gut content
+KK736	Fish gut contents	Exposure	11	40%	5.2	1.422	1.011322258	0.014	0.032	
+KK737	Fish gut contents	Exposure	11	40%	4.3	1.764	2.21867257	0.013		"low gut content, missing gonad"
+KK738	Fish gut contents	Exposure	11	40%	4.5	1.052	1.154458162	0.013	0.01	
+KK739	Fish gut contents	Exposure	11	40%	5.8	2.038	1.044528271	0.011	0.027	
+KK740	Fish gut contents	Exposure	11	40%	4.9	1.246	1.059082525	0.014	0.019	
+KK741	Fish gut contents	Exposure	13	control	5.5	1.807	1.086100676	0.024	0.02	low gut content
+KK742	Fish gut contents	Exposure	13	control	4.9	1.486	1.263079159	0.028	0.128	
+KK743	Fish gut contents	Exposure	13	control	5.3	1.577	1.059263687	0.018	0.02	
+KK744	Fish gut contents	Exposure	13	control	5.8	2.23	1.14293329	0.016	0.027	
+KK745	Fish gut contents	Exposure	13	control	5.5	1.734	1.042223892	0.02	0.092	
+KK746	Fish gut contents	Exposure	13	control	4.9	1.392	1.183180478	0.021	0.033	
+KK747	Fish gut contents	Exposure	5	TCS	5.6	1.56	0.888301749	0.09	0.019	
+KK748	Fish gut contents	Exposure	5	TCS	4.6	1.188	1.220514506	0.016	0.011	
+KK749	Fish gut contents	Exposure	5	TCS	5.4	1.717	1.090407966	0.017	0.078	
+KK750	Fish gut contents	Exposure	5	TCS	5.8	2.533	1.29822871	0.015	0.218	
+KK751	Fish gut contents	Exposure	5	TCS	4.6	1.054	1.082847045	0.014	0.026	
+KK752	Fish gut contents	Exposure	5	TCS	5.1	1.315	0.991323096	0.008	0.015	low gut content
+KK753	Fish gut contents	Exposure	5	TCS	5	1.435	1.148	0.018	0.087	
+KK754	Fish gut contents	Exposure	4	TCS	5.6	1.843	1.049448797	0.02	0.019	
+KK755	Fish gut contents	Exposure	4	TCS	5.4	1.98	1.25743027	0.018	0.033	
+KK756	Fish gut contents	Exposure	4	TCS	5.7	2.245	1.212248843	0.016	0.03	
+KK757	Fish gut contents	Exposure	4	TCS	4.6	1.145	1.176337635	0.022	0.027	
+KK758	Fish gut contents	Exposure	14	control	5.5	1.784	1.072276484	0.008	0.16	
+KK759	Fish gut contents	Exposure	14	control	5.5	2.147	1.290458302	0.017	0.025	low gut content
+KK760	Fish gut contents	Exposure	14	control	4.7	1.101	1.060458665	0.015	0.011	low gut content
+KK761	Fish gut contents	Exposure	14	control	5.4	1.672	1.061830006	0.02	0.019	
+KK762	Fish gut contents	Exposure	14	control	5.2	1.335	0.949448111	0.01	0.038	
+KK763	Fish gut contents	Exposure	14	control	5.6	2.266	1.290315233	0.028	0.03	
+KK764	Fish gut contents	Exposure	14	control	4.1	0.705	1.022910289	0.06	0.009	
+KK765	Fish gut contents	Exposure	18	10%	5.7	1.755	0.947660009	0.015	0.208	
+KK766	Fish gut contents	Exposure	18	10%	5.7	1.831	0.988698277	0.02	0.018	
+KK767	Fish gut contents	Exposure	18	10%	5.2	1.465	1.041903732	0.014	0.021	
+KK768	Fish gut contents	Exposure	18	10%	5.2	1.823	1.296512289	0.024	0.03	
+KK769	Fish gut contents	Exposure	18	10%	5.6	1.712	0.974854227	0.016	0.022	
+KK770	Fish gut contents	Exposure	18	10%	4.8	1.172	1.059751157	0.014	0.013	low gut content
+KK771	Fish gut contents	Exposure	18	10%	4.9	1.265	1.075232259	0.023	0.02	
+KK772	Fish gut contents	Exposure	3	20%	5.7	2.062	1.113433013	0.018	0.024	
+KK773	Fish gut contents	Exposure	3	20%	5.4	1.581	1.004039018	0.016	0.052	low gut content
+KK774	Fish gut contents	Exposure	3	20%	5.3	1.578	1.059935383	0.019	0.01	
+KK775	Fish gut contents	Exposure	3	20%	5.4	1.721	1.092948229	0.018	0.122	
+KK776	Fish gut contents	Exposure	3	20%	5.3	1.608	1.080086246	0.012	0.011	low gut content
+KK777	Fish gut contents	Exposure	3	20%	4.9	1.185	1.007233381	0.014	0.021	
+KK778	Fish gut contents	Exposure	3	20%	6.2	2.516	1.055687959	0.015	0.032	
+KK779	Fish gut contents	Exposure	12	40%	5.8	1.85	0.948173357	0.018	0.02	
+KK780	Fish gut contents	Exposure	12	40%	5.5	1.517	0.911795642	0.014	0.022	
+KK781	Fish gut contents	Exposure	12	40%	5.6	1.44	0.819970845	0.014	0.023	
+KK782	Fish gut contents	Exposure	12	40%	5.1	1.058	0.797581624	0.008	0.022	
+KK783	Fish gut contents	Exposure	12	40%	4.9	1.135	0.964734082	0.02	0.019	low gut content
+KK784	Fish gut contents	Exposure	12	40%	5	1.008	0.8064	0.01	0.012	low gut content
+KK785	Fish gut contents	Exposure	6	40%	5.9	1.87	0.910511786	0.018	0.155	
+KK786	Fish gut contents	Exposure	6	40%	6.4	2.106	0.803375244	0.024	0.044	
+KK787	Fish gut contents	Exposure	6	40%	5.5	1.28	0.769346356	0.015	0.036	
+KK788	Fish gut contents	Exposure	6	40%	5.7	1.35	0.728969237	0.017	0.021	
+KK789	Fish gut contents	Exposure	6	40%	6	2.235	1.034722222	0.018	0.317	
+KK790	Fish gut contents	Exposure	6	40%	4.9	1.045	0.888235344	0.012	0.015	
+KK791	Fish gut contents	Exposure	6	40%	4.9	1.186	1.008083367	0.01	0.035	
+KK792	Fish gut contents	Exposure	16	control	5.6	1.737	0.989089832	0.019	0.023	
+KK793	Fish gut contents	Exposure	16	control	5.5	1.34	0.805409467	0.013	0.034	
+KK794	Fish gut contents	Exposure	16	control	5.5	1.329	0.798797896	0.019	0.093	
+KK795	Fish gut contents	Exposure	16	control	5.8	1.355	0.694472918	0.014	0.131	
+KK796	Fish gut contents	Exposure	16	control	5.4	1.329	0.844002439	0.01	0.123	
+KK797	Fish gut contents	Exposure	16	control	6.6	2.732	0.950274091	0.038	0.018	bloody gonad
+KK798	Fish gut contents	Exposure	16	control	4.8	0.92	0.831886574	0.01	0.039	
+KK799	Fish gut contents	Exposure	17	10%	5.1	1.04	0.784012182	0.008	0.028	
+KK800	Fish gut contents	Exposure	17	10%	6	1.885	0.872685185	0.021	0.028	
+KK801	Fish gut contents	Exposure	17	10%	5.1	1.215	0.915937309	0.016	0.03	
+KK802	Fish gut contents	Exposure	17	10%	6.1	1.817	0.800507531	0.02	0.238	low gut content
+KK803	Fish gut contents	Exposure	17	10%	5.4	1.626	1.032616979	0.015	0.118	
+KK804	Fish gut contents	Exposure	17	10%	5.9	1.835	0.893470121	0.026	0.029	
+KK805	Fish gut contents	Exposure	9	20%	5.2	1.046	0.743912153	0.008	0.014	
+KK806	Fish gut contents	Exposure	9	20%	5.1	1.017	0.766673451	0.011	0.011	
+KK807	Fish gut contents	Exposure	9	20%	5	0.865	0.692	0.007	0.022	
+KK808	Fish gut contents	Exposure	9	20%	5.8	1.464	0.750338267	0.015	0.036	
+KK809	Fish gut contents	Exposure	9	20%	5.4	1.317	0.836381649	0.016	0.087	
+KK810	Fish gut contents	Exposure	9	20%	5.5	1.367	0.821637866	0.022	0.08	
+KK811	Fish gut contents	Exposure	9	20%	5.1	1.144	0.862413401	0.012	0.087	
+KK812	Fish gut contents	Exposure	10	TCS	6	1.978	0.915740741	0.016	0.231	
+KK813	Fish gut contents	Exposure	10	TCS	6.1	2.221	0.978495997	0.028	0.195	
+KK814	Fish gut contents	Exposure	10	TCS	5.3	1.209	0.812079771	0.014	0.021	
+KK815	Fish gut contents	Exposure	10	TCS	5.1	1.138	0.857890253	0.012	0.01	
+KK816	Fish gut contents	Exposure	10	TCS	6.2	2.202	0.923936759	0.025	0.027	
+KK817	Fish gut contents	Exposure	10	TCS	5.5	1.357	0.815627348	0.008	0.021	
+KK818	Wash solution	Exposure		control						control - bleach
+KK819	Wash solution	Exposure		control						control - ethanol
+KK820	Wash solution	Exposure		control						control - nanopure
+KK821	Wash solution	Exposure		TCS						TCS - bleach
+KK822	Wash solution	Exposure		TCS						TCS - ethanol
+KK823	Wash solution	Exposure		TCS						TCS - nanopure
+KK824	Wash solution	Exposure		10%						10% - bleach
+KK825	Wash solution	Exposure		10%						10% - ethanol
+KK826	Wash solution	Exposure		10%						10% - nanopure
+KK827	Wash solution	Exposure		20%						20% - bleach
+KK828	Wash solution	Exposure		20%						20% - ethanol
+KK829	Wash solution	Exposure		20%						20% - nanopure
+KK830	Wash solution	Exposure		40%						40% -bleach
+KK831	Wash solution	Exposure		40%						40% - ethanol
+KK832	Wash solution	Exposure		40%						40% - nanopure
