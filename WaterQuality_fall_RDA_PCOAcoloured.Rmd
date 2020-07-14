@@ -1,0 +1,371 @@
+---
+title: "Fall Analysis with Water Quality"
+author: "Victoria Restivo"
+date: '2019-04-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+setwd("~/Desktop/October_2018_data/")
+path ="~/Desktop/October_2018_data/"
+getwd()
+# load libraries for ordination and clustering
+library("cluster")
+library("phyloseq")
+packageDescription("phyloseq")$Version
+library("ggplot2")
+library("plyr")
+library("grid")
+library("ape")
+library("phangorn")
+library("phytools")
+library("vegan")
+library("tidyr")
+library("dplyr")
+library("data.table")
+library("microbiome")
+library("ggpubr")
+library("speedyseq")
+theme_set(theme_bw()) ## Default is gray, In case you want the white
+library("GGally")
+packageDescription("GGally")$version
+
+#Import files to make the phyloseq object 
+
+##OTU file
+otufile = "seqtab_nochim_transposed_KKfish_v34.csv"
+otu_df = read.csv(otufile, row.names = 1) 
+seqs = rownames(otu_df)
+rownames(otu_df) = NULL
+
+##TAXA file
+taxfile = "taxa_KKfish_silva132.csv"
+tax_df = read.csv(taxfile, row.names = 1)
+all(seqs == rownames(tax_df))
+rownames(tax_df) = NULL
+
+##METADATA file
+metfile = "map_wq_2018.txt"
+met_df = read.delim(metfile) #read tab-delimited instead of comma
+met_df$X.NAME = gsub('-', '.', as.character(met_df$X.NAME)) #just in case there are dashes
+met_df$X.NAME = gsub(' ', '.', met_df$X.NAME) #just in case there are spaces
+met_df$X.NAME = as.factor(met_df$X.NAME) #just in case
+rownames(met_df) = met_df$X.NAME   #make sure the rownames in the metadata data frame are the same as the row (or column, whichever is samples) in the otu data frame
+
+#Create the phyloseq object
+dat_wq = phyloseq(otu_table(otu_df, taxa_are_rows = TRUE), # or FALSE if false
+                         tax_table(as.matrix(tax_df)),
+                         sample_data(met_df))
+
+#Clean data
+dat_wq_wash <- subset_samples(dat_wq, SampleType == "wash") #wash solutions
+dat_wq_lessKK <- subset_samples(dat_wq, SampleType == "gut content") #gut content only
+
+
+
+
+
+rel_abun_all <- transform_sample_counts(dat_wq_lessKK, function(x) x/sum(x))
+rel_abun_all_prune = prune_taxa(taxa_sums(rel_abun_all) > 0.02,
+                                rel_abun_all) 
+all_df <- psmelt(rel_abun_all_prune)
+
+#proteobacteria correlations?
+dat_wq_proteo <- subset_taxa(dat_wq_lessKK, Phylum=="Proteobacteria")
+
+rel_abun_proteo <- transform_sample_counts(dat_wq_proteo, function(x) x/sum(x))
+rel_abun_all_proteo = prune_taxa(taxa_sums(rel_abun_proteo) > 0.02,
+                                rel_abun_proteo) 
+proteo_df <- psmelt(rel_abun_all_proteo)
+
+cor(proteo_df$Abundance, proteo_df$Condition.Factor)
+
+proteo_df$Site <- factor(proteo_df$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+qplot(x=Site, y=Abundance, data=proteo_df, geom=c("boxplot"))
+qplot(x=Condition.Factor, y=Abundance, data=proteo_df, geom=c("point"))
+
+
+
+#Add Diversity
+rare.depth <- min(sample_sums(dat_wq_lessKK))
+rare.depth #3373
+dat_rare <- rarefy_even_depth(dat_wq_lessKK, sample.size = rare.depth, rngseed=1414)
+
+alpha_diversity <- estimate_richness(dat_rare, split=TRUE, measures=c("Shannon", "Simpson"))
+alpha_div <- data.frame(alpha_diversity)
+alpha_div$X.NAME <- NA
+alpha_div$X.NAME <- c(97:111, 115:130, 134:148, 152:157, 159:166, 170:184, 188:202, 25:39, 43:57, 61:66, 68:75, 79:93)
+
+alpha_met_df <- mutate(met_df, X.NAME = c(25:205))
+alpha_div_merge <- merge(alpha_met_df, alpha_div, by = "X.NAME") #merge metadata and alpha diversity numbers
+
+alpha_div_merge
+
+alpha_div_merge$Site <- factor(alpha_div_merge$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+
+names(alpha_div_merge)[names(alpha_div_merge) == "Condition.Factor"] <- "K"
+
+qplot(x=Site, y=Shannon, data=alpha_div_merge, geom=c("boxplot")
+
+plot(alpha_div_merge$K, alpha_div_merge$Shannon) abline(lm(alpha_div_merge$K ~ alpha_div_merge$Shannon))
+
+
+cor(alpha_div_merge$Shannon, alpha_div_merge$K)
+ggcorr(alpha_div_merge, label=TRUE, hjust = 0.75, size = 3, layout.exp=1)
+
+library("Hmisc")
+rcorr(x=alpha_div_merge$Distance, y=alpha_div_merge$K, type=c("pearson"))
+
+rcorr(x=alpha_div_merge$Shannon, y=alpha_div_merge$Distance, type=c("pearson"))
+
+#Pearson's Correlation 
+cor(all_df$Abundance, all_df$Condition.Factor)
+#ANS: -0.0001902724
+
+
+
+ggcorr(all_df, label=TRUE, hjust = 0.75, size = 3, layout.exp=1)
+
+
+names(all_df)[names(all_df) == "Weight..g."] <- "Weight"
+names(all_df)[names(all_df) == "Length..cm."] <- "Length"
+names(all_df)[names(all_df) == "Condition.Factor"] <- "K"
+all_df
+
+ggcorr(all_df, label=TRUE, hjust = 0.75, size = 3, layout.exp=1)
+
+cor(all_df$K, all_df$Distance)
+
+
+all_df$Site <- factor(all_df$Site, levels=c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4"), labels=c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4"))
+
+qplot(x=Site, y=K, data=all_df, geom=c("boxplot")) 
+
+qplot(x=Site, y=K, data=all_df, geom=c("point", "line"))
+      
+      
+      
+      
+      
+
+      
+#RDA
+
+
+
+dat_wq_rda <- ordinate(dat_wq_lessKK, "RDA")
+
+
+temp_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="Temperature", shape="Location", label="Site") 
+temp_rda
+
+pH_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="pH", shape="Location", label="Site")
+pH_rda
+
+K_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, color="Condition.Factor", shape="Site", points=3)
+K_rda
+
+K_rda_split <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="Condition.Factor", shape="Location", label="Site")
+K_rda_split
+
+length_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="Length..cm.", shape="Location", label="Site")
+length_rda
+
+weight_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="Weight..g.", shape="Location", label="Site")
+weight_rda
+
+DO_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="DO", shape="Location", label="Site")
+DO_rda
+
+con_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="Conductivity", shape="Location", label="Site")
+con_rda
+
+tds_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="TDS", shape="Location", label="Site")
+tds_rda
+
+NH4_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="NH4", shape="Location", label="Site")
+NH4_rda
+
+NH3_rda <- plot_ordination(dat_wq_lessKK, dat_wq_rda, type="split", color="NH3", shape="Location", label="Site")
+NH3_rda
+
+
+#RDA by condition factor
+
+
+relabunbray.ord <- ordinate(dat_wq_lessKK, method = "RDA")
+ 
+relabunbray.plot.site <- plot_ordination(dat_wq_lessKK, relabunbray.ord,
+                                       color = "Condition.Factor",
+                                       shape = "Site",
+                                       axes = c(1,2))
+                                       
+site_label_order = c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4")
+
+site_label_name = c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4")
+
+relabunbray.plot.site$data$Site <- as.character(relabunbray.plot.site$data$Site)
+
+relabunbray.plot.site$data$Site <- factor(relabunbray.plot.site$data$Site, levels=site_label_order, labels=site_label_name)
+
+#colour and point size by condition factor; shapes by site
+relabunbray.plot.site + scale_color_gradient(low="blue", high="red") + 
+          geom_point(aes(size=Condition.Factor)) +
+          scale_shape_manual(values=c(15:25)) +
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=14, color="black")) +
+          theme(legend.title = element_text(size=15, color="black"))
+
+#point size by condition factor; colour by site
+
+relabunbray.plot.site <- plot_ordination(dat_wq_lessKK, relabunbray.ord,
+                                       color = "Site",
+                                       axes = c(1,2))
+                                       
+site_label_order = c("1_REF1", "2_REF2", "3_REF3", "4_DSW1", "5_DSW2", "6_DSW3", "7_DSK1", "8_DSK2", "9_DSK3", "10_DSK4")
+
+site_label_name = c("REF 1", "REF 2", "REF 3", "DSW 1", "DSW 2", "DSW 3", "DSK 1", "DSK 2", "DSK 3", "DSK 4")
+
+relabunbray.plot.site$data$Site <- as.character(relabunbray.plot.site$data$Site)
+
+relabunbray.plot.site$data$Site <- factor(relabunbray.plot.site$data$Site, levels=site_label_order, labels=site_label_name)
+
+
+relabunbray.plot.site + 
+          geom_point(aes(size=Condition.Factor)) +
+          scale_shape_manual(values=c(15:25)) +
+          theme(axis.text=element_text(size=18), axis.title=element_text(size=18)) +
+          theme(legend.text=element_text(size=14, color="black")) +
+          theme(legend.title = element_text(size=15, color="black"))
+
+
+#old things not used
+
+##
+relabunbray.plot <- plot_ordination(dat_wq_lessKK, relabunbray.ord,
+                                       color = "Length..cm.",
+                                       shape = "Location",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot+scale_color_gradient(low="blue", high="red")
+
+##
+relabunbray.plot <- plot_ordination(dat_wq_lessKK, relabunbray.ord,
+                                       color = "Weight..g.",
+                                       shape = "Location",
+                                       axes = c(1,2))
+                                       
+relabunbray.plot+scale_color_gradient(low="blue", high="red")
+
+
+#Bray Curtis - coloured by Abundance
+#Can't do because it won't accept the df with abundance, and without the df there is no abundance?
+
+
+#Bray Curtis - by proteobacteria
+dat_proteo <- subset_taxa(dat_wq_lessKK, Phylum=="Proteobacteria")
+rel_abun_proteo <- speedyseq::tax_glom(dat_proteo, taxrank = "Family")
+
+
+relabunbray.ord <- ordinate(rel_abun_proteo, method = "PCoA", distance = "bray")
+
+relabunbray.plot <- plot_ordination(rel_abun_proteo, relabunbray.ord,
+                                       color = "Location",
+                                       axes = c(4,5))
+                                       
+relabunbray.plot
+
+##PERMANOVA PROTEOBACTERIA
+dat_proteo <- subset_taxa(dat_wq_lessKK, Phylum=="Proteobacteria")
+metadata <- as(sample_data(dat_proteo), "data.frame")
+permanova<-adonis(distance(dat_proteo, method="bray", set.seed=1414) ~ Location, data = metadata)
+permanova
+
+
+#Constrained Analysis on PCoA
+
+
+#dat_wq_lessKK_no10 <- subset_samples(dat_wq_lessKK, Site != "10_DSK4")  #gut content only and no site 10 (because no wq data for site 10)
+
+
+cap_K <- ordinate(dat_wq_lessKK, method="CAP", distance="bray", formula=~Condition.Factor )
+
+#Just CAP without formula
+
+cap_K <- ordinate(dat_wq_lessKK, method="CAP", distance="bray")
+
+tankbr_rda <- plot_ordination(
+  physeq = dat_wq_lessKK, 
+  ordination = cap_K,
+  #RDA1 and RDA2?
+  axes = c(1,2)) +
+  xlim(-1.2, 2) +
+  #Plot shape and colour according to distance bin and location
+  geom_point(aes(colour = Location, shape = Site), size = 6, stroke = 1) +
+  #Change legend titles for shape and colour boxes
+  labs(colour = "Location", shape = "Site") +
+  #Change order of distance bin appearance; made it appear sequentially. values= To change shapes
+  scale_shape_manual(values=c(1:10)) +
+  #Change colours
+  scale_color_manual(breaks=c("Upstream", "Downstream Waterloo", "Downstream Kitchener"), values = c("#4682B4", "#FFA500", "red")) 
+  
+  tankbr_rda
+
+
+#Add the environmental variables/loadings as arrows
+arrowmat_rar <- vegan::scores(cap_K, display = "bp") #scores, display biplot
+
+#Add labels, make a data.frame
+arrowdf_rar <- data.frame(labels = rownames(arrowmat_rar), arrowmat_rar) #add arrow labels
+
+# Define the arrow aesthetic mapping
+arrow_map_rar <- aes(xend = CAP1*1, yend = MDS1*1, #Extend arrow by magnitude
+                     x = 0, y = 0, shape = NULL, color = NULL, label = labels)
+
+label_map_rar <- aes(x = 1.2 * CAP1, y = 1.1 * MDS1, #label positioning
+                     shape = NULL, color = NULL, label = labels)
+
+arrowhead_rar = arrow(length = unit(0.02, "npc")) #define arrowhead
+
+#Create dbRDA plot
+tankbr_rda <- plot_ordination(
+  physeq = dat_wq_lessKK, 
+  ordination = cap_K,
+  #RDA1 and RDA2?
+  axes = c(1,2)) +
+  xlim(-1.2, 2) +
+  #Plot shape and colour according to distance bin and location
+  geom_point(aes(colour = Location, shape = Site), size = 6, stroke = 1) +
+  #Change legend titles for shape and colour boxes
+  labs(colour = "Location", shape = "Site") +
+  #Change order of distance bin appearance; made it appear sequentially. values= To change shapes
+  scale_shape_manual(values=c(1:10)) +
+  #Change colours
+  scale_color_manual(breaks=c("Upstream", "Downstream_Waterloo", "Downstream_Kitchener"), values = c("#4682B4", "#FFA500", "red")) +
+  #map arrows
+  geom_segment(mapping = arrow_map_rar, #call on mapping
+               size = 0.70, #arrow width
+               data = arrowdf_rar, #arrow eigens presumably
+               color = "grey20", 
+               arrow = arrowhead_rar) + 
+  geom_text(mapping = label_map_rar, #call on mapping
+            size = 5.5,  #font size
+            fontface=2, #bold arrow labels
+            data = arrowdf_rar, #environmental variable names
+            show.legend = FALSE) +
+  theme(panel.border = element_blank(),
+        panel.background = element_rect(fill = "white", #Default panel is grey, so make it white
+                                        colour = "black", #Adds black border around plot area
+                                        size = 0.5, linetype = "solid"), #Line customizations
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid', #Plot major grid lines
+                                        colour = "lightgrey"),
+        legend.text = element_text(size = 14), legend.title = element_text(size = 16),
+        axis.title = element_text(size = 14, face = 2), axis.text = element_text(size = 14))
+        
+        tankbr_rda

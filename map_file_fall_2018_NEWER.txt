@@ -1,0 +1,182 @@
+#NAME	SampleType	Site	Location	Note	Length (cm)	Weight (g)	Condition Factor	Temperature	DO	Conductivity	TDS	pH	NH4	NH3
+KK25	gut content	2_REF2	Upstream		5.1	1.731	1.304927969	6.6	12.25	282.6	283.7	7.9	0.06	0
+KK26	gut content	2_REF2	Upstream		5.2	1.558	1.108045061							
+KK27	gut content	2_REF2	Upstream		6.4	3.515	1.340866089							
+KK28	gut content	2_REF2	Upstream		5.3	1.789	1.201663118							
+KK29	gut content	2_REF2	Upstream		5	1.476	1.1808							
+KK30	gut content	2_REF2	Upstream		5.5	1.955	1.175056349							
+KK31	gut content	2_REF2	Upstream		5.5	2.034	1.222539444							
+KK32	gut content	2_REF2	Upstream		5.3	1.749	1.174795301							
+KK33	gut content	2_REF2	Upstream		5.2	1.784	1.268775603							
+KK34	gut content	2_REF2	Upstream		5.5	1.581	0.95026296							
+KK35	gut content	2_REF2	Upstream		5.4	1.799	1.142483361							
+KK36	gut content	2_REF2	Upstream	low gut content	4.7	1.098	1.057569132							
+KK37	gut content	2_REF2	Upstream		5.6	2.255	1.284051567							
+KK38	gut content	2_REF2	Upstream		6	2.852	1.32037037							
+KK39	gut content	2_REF2	Upstream		6.1	2.666	1.174547649							
+KK40	wash	2_REF2	Upstream											
+KK41	wash	2_REF2	Upstream											
+KK42	wash	2_REF2	Upstream											
+KK43	gut content	1_REF1	Upstream	low gut content	5.8	2.584	1.324367543	9.2	12.82	300.7	279.8	8.08	0.04	0
+KK44	gut content	1_REF1	Upstream		5.6	2.251	1.28177387							
+KK45	gut content	1_REF1	Upstream		5.8	2.501	1.281827873							
+KK46	gut content	1_REF1	Upstream		5.7	2.324	1.254907043							
+KK47	gut content	1_REF1	Upstream		5.5	2.044	1.228549962							
+KK48	gut content	1_REF1	Upstream		6	3.124	1.446296296							
+KK49	gut content	1_REF1	Upstream		5.4	1.841	1.169156125							
+KK50	gut content	1_REF1	Upstream	low gut content	6.1	3.05	1.343724805							
+KK51	gut content	1_REF1	Upstream	messed up ovary	5.6	2.458	1.399644679							
+KK52	gut content	1_REF1	Upstream		6.3	3.26	1.303754894							
+KK53	gut content	1_REF1	Upstream		5.5	2.178	1.309090909							
+KK54	gut content	1_REF1	Upstream		6.6	3.805	1.323496675							
+KK55	gut content	1_REF1	Upstream		5.1	1.49	1.123248223							
+KK56	gut content	1_REF1	Upstream		5.4	2.144	1.36158106							
+KK57	gut content	1_REF1	Upstream		4.8	1.154	1.043475116							
+KK58	wash	1_REF1	Upstream											
+KK59	wash	1_REF1	Upstream											
+KK60	wash	1_REF1	Upstream											
+KK61	gut content	4_DSW1	Downstream_Waterloo		6.2	3.128	1.312476923	9	11.22	639.2	596.7	7.89	0.12	0
+KK62	gut content	4_DSW1	Downstream_Waterloo		5.3	1.773	1.190915991							
+KK63	gut content	4_DSW1	Downstream_Waterloo		5.4	1.897	1.204719809							
+KK64	gut content	4_DSW1	Downstream_Waterloo		6.5	3.552	1.293400091							
+KK65	gut content	4_DSW1	Downstream_Waterloo	worm?	5.6	2.056	1.170736152							
+KK66	gut content	4_DSW1	Downstream_Waterloo		5	1.604	1.2832							
+KK67	gut content	4_DSW1	Downstream_Waterloo		6.2	3.213	1.348142056							
+KK68	gut content	4_DSW1	Downstream_Waterloo		5.6	2.033	1.157639395							
+KK69	gut content	4_DSW1	Downstream_Waterloo		5.3	1.763	1.184199037							
+KK70	gut content	4_DSW1	Downstream_Waterloo		5.4	1.94	1.232027638							
+KK71	gut content	4_DSW1	Downstream_Waterloo		5.3	1.724	1.158002915							
+KK72	gut content	4_DSW1	Downstream_Waterloo	low gut content	6	2.621	1.213425926							
+KK73	gut content	4_DSW1	Downstream_Waterloo	low gut content	5.5	1.727	1.038016529							
+KK74	gut content	4_DSW1	Downstream_Waterloo	low gut content	5.2	1.51	1.073907601							
+KK75	gut content	4_DSW1	Downstream_Waterloo		5.1	1.448	1.091586192							
+KK76	wash	4_DSW1	Downstream_Waterloo											
+KK77	wash	4_DSW1	Downstream_Waterloo											
+KK78	wash	4_DSW1	Downstream_Waterloo											
+KK79	gut content	3_REF3	Upstream		5.8	2.365	1.212124318	7	12.67	511.3	332.4	8.74	0.04	0
+KK80	gut content	3_REF3	Upstream		6.4	3.272	1.248168945							
+KK81	gut content	3_REF3	Upstream	low gut content	5.6	2.056	1.170736152							
+KK82	gut content	3_REF3	Upstream		6.5	3.133	1.140828402							
+KK83	gut content	3_REF3	Upstream		6.4	3.065	1.169204712							
+KK84	gut content	3_REF3	Upstream	low gut content	5.2	1.792	1.27446518							
+KK85	gut content	3_REF3	Upstream		4.7	1.386	1.334964314							
+KK86	gut content	3_REF3	Upstream		5.6	2.059	1.172444424							
+KK87	gut content	3_REF3	Upstream		5.9	2.486	1.21044508							
+KK88	gut content	3_REF3	Upstream	fish dropped in EtOH	6	2.48	1.148148148							
+KK89	gut content	3_REF3	Upstream	fish dropped in EtOH	5.4	1.601	1.016740334							
+KK90	gut content	3_REF3	Upstream		5.1	1.5	1.130786801							
+KK91	gut content	3_REF3	Upstream		5.7	2.379	1.28460579							
+KK92	gut content	3_REF3	Upstream		6.6	1.989	0.691835712							
+KK93	gut content	3_REF3	Upstream		5.5	1.892	1.137190083							
+KK94	wash	3_REF3	Upstream											
+KK95	wash	3_REF3	Upstream											
+KK96	wash	3_REF3	Upstream											
+KK97	gut content	5_DSW2	Downstream_Waterloo		7	4.253	1.239941691	6.7	13.67	438.2	437.5	8.41	0.09	0
+KK98	gut content	5_DSW2	Downstream_Waterloo		6.3	2.748	1.098993389							
+KK99	gut content	5_DSW2	Downstream_Waterloo		5.5	1.942	1.167242675							
+KK100	gut content	5_DSW2	Downstream_Waterloo		5.5	2.01	1.2081142							
+KK101	gut content	5_DSW2	Downstream_Waterloo		5.7	2.454	1.325104081							
+KK102	gut content	5_DSW2	Downstream_Waterloo		5.3	1.804	1.211738549							
+KK103	gut content	5_DSW2	Downstream_Waterloo		4.7	1.249	1.203008967							
+KK104	gut content	5_DSW2	Downstream_Waterloo		5.8	2.665	1.36588216							
+KK105	gut content	5_DSW2	Downstream_Waterloo		6.5	3.332	1.213290851							
+KK106	gut content	5_DSW2	Downstream_Waterloo		6	2.603	1.205092593							
+KK107	gut content	5_DSW2	Downstream_Waterloo		6.1	2.927	1.289535247							
+KK108	gut content	5_DSW2	Downstream_Waterloo		6.3	2.877	1.15058369							
+KK109	gut content	5_DSW2	Downstream_Waterloo		6	2.618	1.212037037							
+KK110	gut content	5_DSW2	Downstream_Waterloo		6.4	3.142	1.198577881							
+KK111	gut content	5_DSW2	Downstream_Waterloo		5.6	2.057	1.171305576							
+KK112	wash	5_DSW2	Downstream_Waterloo											
+KK113	wash	5_DSW2	Downstream_Waterloo											
+KK114	wash	5_DSW2	Downstream_Waterloo											
+KK115	gut content	6_DSW3	Downstream_Waterloo		6.3	3.209	1.283358729	6.3	12.05	436.9	440.7	8.66	0.05	0
+KK116	gut content	6_DSW3	Downstream_Waterloo	low gut content	5.8	2.443	1.252101357							
+KK117	gut content	6_DSW3	Downstream_Waterloo		5.7	1.923	1.038376181							
+KK118	gut content	6_DSW3	Downstream_Waterloo		5.6	2.068	1.177569242							
+KK119	gut content	6_DSW3	Downstream_Waterloo		5.2	1.688	1.200500683							
+KK120	gut content	6_DSW3	Downstream_Waterloo	low gut content	6	2.894	1.339814815							
+KK121	gut content	6_DSW3	Downstream_Waterloo	low gut content	6.1	2.829	1.246359827							
+KK122	gut content	6_DSW3	Downstream_Waterloo	low gut content	5.6	1.876	1.068239796							
+KK123	gut content	6_DSW3	Downstream_Waterloo		6.2	3.03	1.271357121							
+KK124	gut content	6_DSW3	Downstream_Waterloo		6.6	3.239	1.12662437							
+KK125	gut content	6_DSW3	Downstream_Waterloo	stone?	6	2.316	1.072222222							
+KK126	gut content	6_DSW3	Downstream_Waterloo		5.1	1.579	1.190341573							
+KK127	gut content	6_DSW3	Downstream_Waterloo	low gut content	5.5	2.259	1.357776108							
+KK128	gut content	6_DSW3	Downstream_Waterloo		5.6	1.979	1.126890488							
+KK129	gut content	6_DSW3	Downstream_Waterloo		5.8	2.121	1.08706794							
+KK130	gut content	6_DSW3	Downstream_Waterloo		5.5	1.715	1.030803907							
+KK131	wash	6_DSW3	Downstream_Waterloo											
+KK132	wash	6_DSW3	Downstream_Waterloo											
+KK133	wash	6_DSW3	Downstream_Waterloo											
+KK134	gut content	7_DSK1	Downstream_Kitchener		5.4	1.991	1.264415993	8.5	13.15	830.3	540.5	8.39	0.08	0
+KK135	gut content	7_DSK1	Downstream_Kitchener		5.9	2.624	1.277637928							
+KK136	gut content	7_DSK1	Downstream_Kitchener	low gut content	5.8	2.422	1.241338308							
+KK137	gut content	7_DSK1	Downstream_Kitchener		5.2	1.678	1.193388712							
+KK138	gut content	7_DSK1	Downstream_Kitchener		5.7	2.366	1.277586086							
+KK139	gut content	7_DSK1	Downstream_Kitchener		6	2.673	1.2375							
+KK140	gut content	7_DSK1	Downstream_Kitchener		6.6	2.938	1.021927262							
+KK141	gut content	7_DSK1	Downstream_Kitchener		5.9	2.717	1.322920065							
+KK142	gut content	7_DSK1	Downstream_Kitchener		6.6	4.15	1.443498344							
+KK143	gut content	7_DSK1	Downstream_Kitchener		5.8	2.588	1.326417647							
+KK144	gut content	7_DSK1	Downstream_Kitchener		5.5	2.234	1.342749812							
+KK145	gut content	7_DSK1	Downstream_Kitchener		5.7	2.499	1.349403055							
+KK146	gut content	7_DSK1	Downstream_Kitchener	low gut content	5.9	2.911	1.417379576							
+KK147	gut content	7_DSK1	Downstream_Kitchener		6.2	3.181	1.334715182							
+KK148	gut content	7_DSK1	Downstream_Kitchener		5.7	2.629	1.419600093							
+KK149	wash	7_DSK1	Downstream_Kitchener											
+KK150	wash	7_DSK1	Downstream_Kitchener											
+KK151	wash	7_DSK1	Downstream_Kitchener											
+KK152	gut content	8_DSK2	Downstream_Kitchener		5.9	2.645	1.287862927	7.3	11.99	875	568.1	8.52	0.07	0
+KK153	gut content	8_DSK2	Downstream_Kitchener		5.2	1.746	1.241750114							
+KK154	gut content	8_DSK2	Downstream_Kitchener		5.3	1.843	1.237934671							
+KK155	gut content	8_DSK2	Downstream_Kitchener		5.3	1.861	1.250025189							
+KK156	gut content	8_DSK2	Downstream_Kitchener	low gut content	6.2	3.093	1.297791279							
+KK157	gut content	8_DSK2	Downstream_Kitchener		5.5	1.983	1.1918858							
+KK158	gut content	8_DSK2	Downstream_Kitchener	low gut content	5.4	1.869	1.186937967							
+KK159	gut content	8_DSK2	Downstream_Kitchener		5.6	2.157	1.228247996							
+KK160	gut content	8_DSK2	Downstream_Kitchener		5.5	2.047	1.230353118							
+KK161	gut content	8_DSK2	Downstream_Kitchener		5.6	1.953	1.112085459							
+KK162	gut content	8_DSK2	Downstream_Kitchener		5.6	2.159	1.229386844							
+KK163	gut content	8_DSK2	Downstream_Kitchener		5.5	1.926	1.157625845							
+KK164	gut content	8_DSK2	Downstream_Kitchener		6	2.647	1.225462963							
+KK165	gut content	8_DSK2	Downstream_Kitchener	low gut content	6	2.604	1.205555556							
+KK166	gut content	8_DSK2	Downstream_Kitchener		5.9	2.244	1.092614143							
+KK167	wash	8_DSK2	Downstream_Kitchener											
+KK168	wash	8_DSK2	Downstream_Kitchener											
+KK169	wash	8_DSK2	Downstream_Kitchener											
+KK170	gut content	9_DSK3	Downstream_Kitchener		5.5	2.129	1.279639369	8.2	15.11	830.4	540.8	8.61	0.06	0
+KK171	gut content	9_DSK3	Downstream_Kitchener		4.5	0.989	1.085322359							
+KK172	gut content	9_DSK3	Downstream_Kitchener		5	1.396	1.1168							
+KK173	gut content	9_DSK3	Downstream_Kitchener		5.4	2.077	1.319031652							
+KK174	gut content	9_DSK3	Downstream_Kitchener	low gut content	5.5	2.088	1.254996243							
+KK175	gut content	9_DSK3	Downstream_Kitchener	low gut content	4.6	1.252	1.28626613							
+KK176	gut content	9_DSK3	Downstream_Kitchener		4.5	1.17	1.283950617							
+KK177	gut content	9_DSK3	Downstream_Kitchener	low gut content	5.5	2.123	1.276033058							
+KK178	gut content	9_DSK3	Downstream_Kitchener		5.3	1.938	1.301745736							
+KK179	gut content	9_DSK3	Downstream_Kitchener		5.1	1.8	1.356944162							
+KK180	gut content	9_DSK3	Downstream_Kitchener		4.7	1.318	1.26946823							
+KK181	gut content	9_DSK3	Downstream_Kitchener		5.5	2.065	1.241172051							
+KK182	gut content	9_DSK3	Downstream_Kitchener		5.8	2.37	1.214686949							
+KK183	gut content	9_DSK3	Downstream_Kitchener		5.5	2.176	1.307888805							
+KK184	gut content	9_DSK3	Downstream_Kitchener		4.8	1.239	1.120334201							
+KK185	wash	9_DSK3	Downstream_Kitchener											
+KK186	wash	9_DSK3	Downstream_Kitchener											
+KK187	wash	9_DSK3	Downstream_Kitchener											
+KK188	gut content	10_DSK4	Downstream_Kitchener		4.8	1.222	1.104962384							
+KK189	gut content	10_DSK4	Downstream_Kitchener	low gut content	5.6	2.332	1.32789723							
+KK190	gut content	10_DSK4	Downstream_Kitchener		4.9	1.254	1.065882413							
+KK191	gut content	10_DSK4	Downstream_Kitchener		4.7	1.164	1.121138861							
+KK192	gut content	10_DSK4	Downstream_Kitchener	low gut content	6.3	4.447	1.778465648							
+KK193	gut content	10_DSK4	Downstream_Kitchener		6.2	3.283	1.377513343							
+KK194	gut content	10_DSK4	Downstream_Kitchener		6.5	3.918	1.426672736							
+KK195	gut content	10_DSK4	Downstream_Kitchener		6.3	3.416	1.366143165							
+KK196	gut content	10_DSK4	Downstream_Kitchener		6.5	3.672	1.33709604							
+KK197	gut content	10_DSK4	Downstream_Kitchener		5.9	2.46	1.197785557							
+KK198	gut content	10_DSK4	Downstream_Kitchener		6.4	3.728	1.422119141							
+KK199	gut content	10_DSK4	Downstream_Kitchener		5.9	2.796	1.361385536							
+KK200	gut content	10_DSK4	Downstream_Kitchener		6.2	3.535	1.483249975							
+KK201	gut content	10_DSK4	Downstream_Kitchener		5.7	2.61	1.409340526							
+KK202	gut content	10_DSK4	Downstream_Kitchener		5.8	2.458	1.259789249							
+KK203	wash	10_DSK4	Downstream_Kitchener											
+KK204	wash	10_DSK4	Downstream_Kitchener											
+KK205	wash	10_DSK4	Downstream_Kitchener											
