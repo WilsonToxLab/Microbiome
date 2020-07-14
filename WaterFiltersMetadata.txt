@@ -1,0 +1,43 @@
+#NAME	Sample Type	Site	Notes
+KK964	water filter paper	INV	"Inverhaugh, Grand River"
+KK965	water filter paper	INV	"Inverhaugh, Grand River"
+KK966	water filter paper	INV	"Inverhaugh, Grand River"
+KK967	water filter paper	WM	"West Montrose, Grand River"
+KK968	water filter paper	WM	"West Montrose, Grand River"
+KK969	water filter paper	WM	"West Montrose, Grand River"
+KK970	water filter paper	KW	"Kiwanis, Grand River"
+KK971	water filter paper	KW	"Kiwanis, Grand River"
+KK972	water filter paper	KW	"Kiwanis, Grand River"
+KK973	water filter paper	EIT	"Economical Insurance Trail, Grand River"
+KK974	water filter paper	EIT	"Economical Insurance Trail, Grand River"
+KK975	water filter paper	EIT	"Economical Insurance Trail, Grand River"
+KK976	water filter paper	FW	"Fairway, Grand River"
+KK977	water filter paper	FW	"Fairway, Grand River"
+KK978	water filter paper	FW	"Fairway, Grand River"
+KK979	water filter paper	DN	"Doon, Grand River"
+KK980	water filter paper	DN	"Doon, Grand River"
+KK981	water filter paper	DN	"Doon, Grand River"
+KK982	water filter paper	HR	"Horse Ranch, Grand River"
+KK983	water filter paper	HR	"Horse Ranch, Grand River"
+KK984	water filter paper	HR	"Horse Ranch, Grand River"
+KK985	water filter paper	PT1	"Pioneer Tower 1, Grand River"
+KK986	water filter paper	PT1	"Pioneer Tower 1, Grand River"
+KK987	water filter paper	PT1	"Pioneer Tower 1, Grand River"
+KK988	water filter paper	PT2	"Pioneer Tower 2, Grand River"
+KK989	water filter paper	PT2	"Pioneer Tower 2, Grand River"
+KK990	water filter paper	PT2	"Pioneer Tower 2, Grand River"
+KK991	water filter paper	JN	"Junction, Grand River"
+KK992	water filter paper	JN	"Junction, Grand River"
+KK993	water filter paper	JN	"Junction, Grand River"
+KK994	water filter paper	BL	"Blair, Grand River"
+KK995	water filter paper	BL	"Blair, Grand River"
+KK996	water filter paper	BL	"Blair, Grand River"
+KK997	water filter paper	GM	"Glen Morris, Grand River"
+KK998	water filter paper	GM	"Glen Morris, Grand River"
+KK999	water filter paper	GM	"Glen Morris, Grand River"
+KK1000	water filter paper	WAT	Waterloo WWTP
+KK1001	water filter paper	WAT	Waterloo WWTP
+KK1002	water filter paper	WAT	Waterloo WWTP
+KK1003	water filter paper	KIT	Kitchener WWTP
+KK1004	water filter paper	KIT	Kitchener WWTP
+KK1005	water filter paper	KIT	Kitchener WWTP
