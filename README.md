@@ -11,13 +11,13 @@ R code included in the file "Field Project" was used to analyze 16S rRNA bacteri
 -supplemental raw water quality data collected at field sites fall 2018: fall 2018 water quality sampling.xlsx
 
 # Field Project - Water Filters
-R code included in the file "Field Project - Water Filters" was used to analyze 16S rRNA bacterial sequences from water filters collected upstream and downstream of wastewater treatment plants on the Grand River. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. Additional files assoicated with this project are: 
+R code included in the file "Field Project - Water Filters" was used to analyze 16S rRNA bacterial sequences from water filters collected upstream and downstream of wastewater treatment plants on the Grand River. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. Additional files assoicated with this project are:   
 -metadata: WaterFiltersMetadata.txt  
 -assigned taxonomy: taxa_VRwater_silva132.csv  
 -sequences: seqtab_nochim_transposed_VRwater_v34.csv  
 
 # Lab Project
-R code included in the file "Lab Project" was used to analyze 16S rRNA bacterial sequences from fish collected upstream of a wastewater treatment plant on the Grand River and transported to the laboratory. Fish were sampled in the field, after acclimation (14 days), and from 28 day exposure to control, wastewater effluent, or the antimicrobial triclosan. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. Additional files assoicated with this project are:
+R code included in the file "Lab Project" was used to analyze 16S rRNA bacterial sequences from fish collected upstream of a wastewater treatment plant on the Grand River and transported to the laboratory. Fish were sampled in the field, after acclimation (14 days), and from 28 day exposure to control, wastewater effluent, or the antimicrobial triclosan. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. Additional files assoicated with this project are:  
 -metadata: map_file_exposure_2019.txt  
 -assigned taxonomy: taxa_KK-fishgut-Oct2019_v34_silva132.csv  
 -sequences (negatives removed): mergetab_nochim_transposed_KK-fishgut-Oct2019_v34_no_neg.csv  
