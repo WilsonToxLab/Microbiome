@@ -9,6 +9,8 @@ R code included in the file "Field Project" was used to analyze 16S rRNA bacteri
 -R code comparing water quality measures to bacterial abundance: WaterQuality_fall_RDA_PCOAcoloured.RMD  
 -metadata including water quality data: map_wq_2018.txt  
 -supplemental raw water quality data collected at field sites fall 2018: fall 2018 water quality sampling.xlsx
+-GPS coordinates of field sites: Field sites.csv 
+-GPS coordinates of wastewater treatment plant (WWTP) outfall sites: WWTP Outfalls.csv
 
 # Field Project - Water Filters
 R code included in the file "Field Project - Water Filters" was used to analyze 16S rRNA bacterial sequences from water filters collected upstream and downstream of wastewater treatment plants on the Grand River. Fastq sequences and metadata associated with this projected have been uploaded to NCBI and will be linked here upon publication. Files required to run this code are marked with a star:  
