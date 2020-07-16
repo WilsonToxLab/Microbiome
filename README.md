@@ -8,8 +8,8 @@ R code included in the file "Field Project" was used to analyze 16S rRNA bacteri
 -* sequences: seqtab_nochim_transposed_KKfish_v34.csv  
 -R code comparing water quality measures to bacterial abundance: WaterQuality_fall_RDA_PCOAcoloured.RMD  
 -metadata including water quality data: map_wq_2018.txt  
--supplemental raw water quality data collected at field sites fall 2018: fall 2018 water quality sampling.xlsx
--GPS coordinates of field sites: Field sites.csv 
+-supplemental raw water quality data collected at field sites fall 2018: fall 2018 water quality sampling.xlsx  
+-GPS coordinates of field sites: Field sites.csv  
 -GPS coordinates of wastewater treatment plant (WWTP) outfall sites: WWTP Outfalls.csv
 
 # Field Project - Water Filters
